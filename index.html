@@ -3502,7 +3502,7 @@ async function renderDetail(view, mt, id) {
           <button class="btn btn-ghost btn-sm" onclick="togglePlayerFullscreen()" title="Fullscreen (F)">⛶ Full</button>
           <button class="btn btn-ghost btn-sm" onclick="openMini(${JSON.stringify(wlItem).replace(/"/g, '&quot;')}, buildUrl('${mt}',${id},1,1))">🪟 Mini</button>
         </div>
-        ${mt === 'tv' ? `<div style="display:flex;gap:9px;margin-bottom:12px;flex-wrap:wrap"><select class="f-select" id="season-sel" onchange="onSeason('${mt}',${id})">${(det.seasons || []).filter(s => s.season_number > 0).map(s => `<option value="${s.season_number}">S${s.season_number} (${s.episode_count} eps)</option>`).join('')}</select><select class="f-select" id="ep-sel"></select></div>` : ''}
+        ${mt === 'tv' ? `<div style="display:flex;gap:9px;margin-bottom:12px;flex-wrap:wrap"><select class="f-select" id="season-sel" onchange="onSeason('${mt}',${id})">${(det.seasons || []).filter(s => s.season_number > 0).map(s => `<option value="${s.season_number}">S${s.season_number} (${s.episode_count} eps)</option>`).join('')}</select><select class="f-select" id="ep-sel" onchange="onEpisodeChange('${mt}',${id})"></select></div>` : ''}
         <div class="player-wrap">
           <iframe id="player-iframe" src="" allow="autoplay;fullscreen;encrypted-media;picture-in-picture" allowfullscreen="true" style="width:100%;height:100%;border:none;display:block"></iframe>
           <button class="fs-exit-btn" onclick="exitPlayerFullscreen()">✕ Exit Fullscreen</button>
@@ -3738,9 +3738,18 @@ function playEpisode(showId, season, episode) {
   if (playerTabBtn) playerTabBtn.click();
   const seasonSel = document.getElementById('season-sel');
   const epSel = document.getElementById('ep-sel');
-  if (seasonSel) { seasonSel.value = season; onSeason('tv', showId); }
+  const seasonData = (window._tvDet?.seasons || []).find(s => s.season_number === season);
+  if (seasonSel) { 
+    seasonSel.value = season; 
+    // Populate episodes without resetting curE
+    if (seasonData && epSel) {
+      epSel.innerHTML = Array.from({ length: seasonData.episode_count }, (_, i) => `<option value="${i + 1}">E${i + 1}</option>`).join('');
+      epSel.value = episode;
+    }
+    loadPlayer('tv', showId);
+    renderUpNext('tv', showId, seasonData?.episode_count || 1);
+  }
   setTimeout(() => {
-    if (epSel) { epSel.value = episode; curE = episode; loadPlayer('tv', showId); }
     document.getElementById('player-section')?.scrollIntoView({behavior:'smooth'});
   }, 100);
 }
@@ -3826,15 +3835,60 @@ function _fsKeyHandler(e) {
 }
 
 function onSeason(mt, id) {
-  const s = parseInt(document.getElementById('season-sel').value);
+  const seasonSel = document.getElementById('season-sel');
+  if (!seasonSel) return;
+  const s = parseInt(seasonSel.value);
   curS = s;
   const season = (window._tvDet?.seasons || []).find(x => x.season_number === s);
-  const ep = document.getElementById('ep-sel');
-  if (season) ep.innerHTML = Array.from({ length: season.episode_count }, (_, i) => `<option value="${i + 1}">Episode ${i + 1}</option>`).join('');
+  const epSel = document.getElementById('ep-sel');
+  if (season && epSel) {
+    epSel.innerHTML = Array.from({ length: season.episode_count }, (_, i) => `<option value="${i + 1}">E${i + 1}</option>`).join('');
+  }
   curE = 1;
   loadPlayer(mt, id);
+  renderUpNext(mt, id, season?.episode_count || 1);
+}
+
+function onEpisodeChange(mt, id) {
+  const epSel = document.getElementById('ep-sel');
+  if (!epSel) return;
+  curE = parseInt(epSel.value);
+  loadPlayer(mt, id);
+  const season = (window._tvDet?.seasons || []).find(x => x.season_number === curS);
+  renderUpNext(mt, id, season?.episode_count || 1);
+}
+
+function renderUpNext(mt, id, totalEps) {
   const n = document.getElementById('up-next');
-  if (n) n.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:12px;background:var(--surface);border:1px solid var(--border)"><div><div style="font-size:9.5px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.12em">Up Next</div><div style="font-weight:700;font-size:13.5px">S${curS}E${curE + 1}</div></div><button class="btn btn-primary btn-sm" onclick="curE=${curE + 1};document.getElementById('ep-sel').value=${curE + 1};loadPlayer('${mt}',${id})">▶ Play</button></div>`;
+  if (!n) return;
+  
+  const isLastEpisode = curE >= totalEps;
+  const hasMoreSeasons = curS < (window._tvDet?.seasons?.length || 1) - 1;
+  
+  if (isLastEpisode && !hasMoreSeasons) {
+    n.innerHTML = `<div style="padding:12px 16px;border-radius:12px;background:var(--accent-glow);border:1px solid var(--accent);text-align:center">
+      <div style="font-size:13px;font-weight:700;color:var(--accent)">🎉 Season Complete!</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:4px">You've watched all episodes</div>
+    </div>`;
+    return;
+  }
+  
+  let nextText, nextAction;
+  if (isLastEpisode && hasMoreSeasons) {
+    nextText = `S${curS + 1}E1`;
+    nextAction = `curS=${curS+1};curE=1;document.getElementById('season-sel').value=${curS+1};onSeason('${mt}',${id});`;
+  } else {
+    nextText = `S${curS}E${curE + 1}`;
+    nextAction = `curE=${curE+1};document.getElementById('ep-sel').value=${curE+1};loadPlayer('${mt}',${id});`;
+  }
+  
+  n.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:12px;background:var(--surface);border:1px solid var(--border)">
+    <div>
+      <div style="font-size:9.5px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.12em">Up Next</div>
+      <div style="font-weight:700;font-size:13.5px">${nextText}</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="${nextAction}">▶ Play</button>
+  </div>`;
 }
 function applyFX() {
   const f = document.getElementById('player-iframe'); if (!f) return;
