@@ -914,7 +914,11 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance
             <div class="toggle" id="auto-theme-tg" onclick="toggleAutoTheme()"></div>
           </div>
           <div class="d-divider"></div>
-          <button class="d-item" onclick="openShortcuts()">⌨️ Shortcuts</button>
+          <div class="d-row">
+            <span>⌨️ Keyboard shortcuts</span>
+            <div class="toggle" id="shortcuts-tg" onclick="toggleShortcuts()"></div>
+          </div>
+          <button class="d-item" onclick="openShortcuts()">📋 View all shortcuts</button>
         </div>
       </div>
     </div>
@@ -1123,12 +1127,24 @@ function setAccent(el) {
   event.stopPropagation();
 }
 let autoThemeOn = LS.get('autoTheme', false);
+let shortcutsEnabled = LS.get('shortcutsEnabled', true);
 function toggleAutoTheme() {
   autoThemeOn = !autoThemeOn;
   LS.set('autoTheme', autoThemeOn);
   document.getElementById('auto-theme-tg').classList.toggle('on', autoThemeOn);
   if (autoThemeOn) applyAutoTheme();
   toast(autoThemeOn ? 'Auto theme ON' : 'Auto theme OFF', '🌗');
+}
+function toggleShortcuts() {
+  shortcutsEnabled = !shortcutsEnabled;
+  LS.set('shortcutsEnabled', shortcutsEnabled);
+  const tg = document.getElementById('shortcuts-tg');
+  if (tg) tg.classList.toggle('on', shortcutsEnabled);
+  toast(shortcutsEnabled ? 'Keyboard shortcuts enabled' : 'Keyboard shortcuts disabled', '⌨️');
+}
+function syncShortcutsToggleUI() {
+  const tg = document.getElementById('shortcuts-tg');
+  if (tg) tg.classList.toggle('on', shortcutsEnabled);
 }
 function applyAutoTheme() {
   if (!autoThemeOn) return;
@@ -1159,7 +1175,14 @@ function toggleDD(id) {
   const el = document.getElementById(id);
   const was = el.classList.contains('open');
   closeAllDD();
-  if (!was) el.classList.add('open');
+  if (!was) {
+    el.classList.add('open');
+    // Sync toggle UI when dropdown opens (in case settings changed elsewhere)
+    const autoTg = document.getElementById('auto-theme-tg');
+    if (autoTg) autoTg.classList.toggle('on', autoThemeOn);
+    const scTg = document.getElementById('shortcuts-tg');
+    if (scTg) scTg.classList.toggle('on', shortcutsEnabled);
+  }
 }
 function closeAllDD() { document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open')); }
 document.addEventListener('click', e => { if (!e.target.closest('.dropdown') && !e.target.closest('.nav-search')) closeAllDD(); });
@@ -4507,11 +4530,19 @@ async function surpriseMe() {
 
 function openShortcuts() {
   closeAllDD();
-  document.getElementById('modal-root').innerHTML = `<div class="modal-back" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h2 class="modal-title">⌨️ Shortcuts</h2><button class="modal-close" onclick="closeModal()">✕</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${[['/','Search'],['S','Surprise'],['?','Shortcuts'],['H','Home'],['M','Mood'],['D','Discover'],['C','Calendar'],['W','Watchlist'],['T','Theme'],['F','Fullscreen'],['N','Mini player'],['Esc','Close']].map(([k,v]) => `<div style="display:flex;align-items:center;gap:9px;font-size:12.5px"><span class="kbd" style="font-size:11px;padding:2px 7px">${k}</span><span style="color:var(--text-dim)">${v}</span></div>`).join('')}</div></div></div>`;
+  const shortcutsList = [['/','Focus search'],['S','Surprise Me'],['?','This Shortcuts panel'],['H','Home'],['M','Mood'],['D','Discover'],['C','Calendar'],['W','Watchlist'],['T','Cycle theme'],['F','Fullscreen'],['N','Close Mini player'],['Esc','Close modals (always works)']];
+  const statusBanner = shortcutsEnabled
+    ? `<div style="padding:12px 14px;border-radius:11px;background:var(--accent-glow);border:1px solid color-mix(in srgb,var(--accent) 30%, transparent);font-size:12px;color:var(--accent);display:flex;align-items:center;gap:8px;margin-bottom:14px">✅ Shortcuts are <strong>enabled</strong> · Press any key above to trigger actions</div>`
+    : `<div style="padding:12px 14px;border-radius:11px;background:rgba(255,80,80,0.12);border:1px solid rgba(255,80,80,0.3);font-size:12px;color:#ff6b6b;display:flex;align-items:center;gap:8px;margin-bottom:14px">⛔ Shortcuts are <strong>disabled</strong> · Key bindings are inactive (except Escape). Toggle them ON in Settings to use shortcuts.</div>`;
+  document.getElementById('modal-root').innerHTML = `<div class="modal-back" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h2 class="modal-title">⌨️ Shortcuts</h2><button class="modal-close" onclick="closeModal()">✕</button></div>${statusBanner}<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${shortcutsList.map(([k,v]) => `<div style="display:flex;align-items:center;gap:9px;font-size:12.5px"><span class="kbd" style="font-size:11px;padding:2px 7px;${!shortcutsEnabled && k!=='Esc' ? 'opacity:0.4;text-decoration:line-through' : ''}">${k}</span><span style="color:var(--text-dim)">${v}</span></div>`).join('')}</div></div></div>`;
 }
 
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') { if (e.key === 'Escape') e.target.blur(); return; }
+  // Escape always works (critical for closing modals)
+  if (e.key === 'Escape') { closeModal(); document.getElementById('ctx').classList.remove('visible'); return; }
+  // All other shortcuts can be disabled by user
+  if (!shortcutsEnabled) return;
   if (e.key === '/') { e.preventDefault(); document.getElementById('global-search').focus(); }
   else if (e.key === 's' || e.key === 'S') surpriseMe();
   else if (e.key === '?') openShortcuts();
@@ -4523,7 +4554,6 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'n' || e.key === 'N') { if (document.getElementById('mini').classList.contains('visible')) closeMini(); else toast('Open a movie & use 🪟 Mini button', '🪟'); }
   else if (e.key === 'f' || e.key === 'F') { const pw = document.querySelector('.player-wrap'); if (pw && pw.classList.contains('css-fullscreen')) exitPlayerFullscreen(); else if (pw) togglePlayerFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); }
   else if (e.key === 't' || e.key === 'T') { const k = Object.keys(THEMES); const next = k[(k.indexOf(document.body.dataset.theme) + 1) % k.length]; setTheme(next); }
-  else if (e.key === 'Escape') { closeModal(); document.getElementById('ctx').classList.remove('visible'); }
 });
 
 setTimeout(() => document.getElementById('splash').classList.add('hidden'), 350);
