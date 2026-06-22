@@ -915,10 +915,11 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance
           </div>
           <div class="d-divider"></div>
           <div class="d-row">
-            <span>⌨️ Keyboard shortcuts</span>
-            <div class="toggle" id="shortcuts-tg" onclick="toggleShortcuts()"></div>
+            <span>⌨️ Keyboard Shortcuts</span>
+            <div class="toggle ${LS.get('shortcutsEnabled', true) ? 'on' : ''}" id="shortcuts-toggle" onclick="toggleShortcutsSetting()"></div>
           </div>
-          <button class="d-item" onclick="openShortcuts()">📋 View all shortcuts</button>
+          <div class="d-divider"></div>
+          <button class="d-item" onclick="openShortcuts()">📖 View Shortcuts List</button>
         </div>
       </div>
     </div>
@@ -1023,9 +1024,9 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance
         <div class="footer-text">Premium home theater · 48+ features</div>
       </div>
     </div>
-    <div class="footer-text">Powered by <a href="https://www.themoviedb.org" target="_blank">TMDB</a> · Single-file · <code>file://</code> / <code>localhost</code></div>
+    <div class="footer-text">Powered by <a href="https://www.themoviedb.org" target="_blank">TMDB</a></div>
     <div class="footer-text">
-      Developed by <a href="https://tmahmed931-art.github.io/profile/" target="_blank" style="font-weight:700;color:var(--accent)">MoMo</a> · © 2026 · v4.0
+      Developed by <a href="https://nullscribee.github.io/profile/" target="_blank" style="font-weight:700;color:var(--accent)">MoMo</a> · © 2026 · v4.0
     </div>
   </footer>
 </div>
@@ -1127,24 +1128,12 @@ function setAccent(el) {
   event.stopPropagation();
 }
 let autoThemeOn = LS.get('autoTheme', false);
-let shortcutsEnabled = LS.get('shortcutsEnabled', true);
 function toggleAutoTheme() {
   autoThemeOn = !autoThemeOn;
   LS.set('autoTheme', autoThemeOn);
   document.getElementById('auto-theme-tg').classList.toggle('on', autoThemeOn);
   if (autoThemeOn) applyAutoTheme();
   toast(autoThemeOn ? 'Auto theme ON' : 'Auto theme OFF', '🌗');
-}
-function toggleShortcuts() {
-  shortcutsEnabled = !shortcutsEnabled;
-  LS.set('shortcutsEnabled', shortcutsEnabled);
-  const tg = document.getElementById('shortcuts-tg');
-  if (tg) tg.classList.toggle('on', shortcutsEnabled);
-  toast(shortcutsEnabled ? 'Keyboard shortcuts enabled' : 'Keyboard shortcuts disabled', '⌨️');
-}
-function syncShortcutsToggleUI() {
-  const tg = document.getElementById('shortcuts-tg');
-  if (tg) tg.classList.toggle('on', shortcutsEnabled);
 }
 function applyAutoTheme() {
   if (!autoThemeOn) return;
@@ -1175,14 +1164,7 @@ function toggleDD(id) {
   const el = document.getElementById(id);
   const was = el.classList.contains('open');
   closeAllDD();
-  if (!was) {
-    el.classList.add('open');
-    // Sync toggle UI when dropdown opens (in case settings changed elsewhere)
-    const autoTg = document.getElementById('auto-theme-tg');
-    if (autoTg) autoTg.classList.toggle('on', autoThemeOn);
-    const scTg = document.getElementById('shortcuts-tg');
-    if (scTg) scTg.classList.toggle('on', shortcutsEnabled);
-  }
+  if (!was) el.classList.add('open');
 }
 function closeAllDD() { document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open')); }
 document.addEventListener('click', e => { if (!e.target.closest('.dropdown') && !e.target.closest('.nav-search')) closeAllDD(); });
@@ -4530,19 +4512,34 @@ async function surpriseMe() {
 
 function openShortcuts() {
   closeAllDD();
-  const shortcutsList = [['/','Focus search'],['S','Surprise Me'],['?','This Shortcuts panel'],['H','Home'],['M','Mood'],['D','Discover'],['C','Calendar'],['W','Watchlist'],['T','Cycle theme'],['F','Fullscreen'],['N','Close Mini player'],['Esc','Close modals (always works)']];
-  const statusBanner = shortcutsEnabled
-    ? `<div style="padding:12px 14px;border-radius:11px;background:var(--accent-glow);border:1px solid color-mix(in srgb,var(--accent) 30%, transparent);font-size:12px;color:var(--accent);display:flex;align-items:center;gap:8px;margin-bottom:14px">✅ Shortcuts are <strong>enabled</strong> · Press any key above to trigger actions</div>`
-    : `<div style="padding:12px 14px;border-radius:11px;background:rgba(255,80,80,0.12);border:1px solid rgba(255,80,80,0.3);font-size:12px;color:#ff6b6b;display:flex;align-items:center;gap:8px;margin-bottom:14px">⛔ Shortcuts are <strong>disabled</strong> · Key bindings are inactive (except Escape). Toggle them ON in Settings to use shortcuts.</div>`;
-  document.getElementById('modal-root').innerHTML = `<div class="modal-back" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h2 class="modal-title">⌨️ Shortcuts</h2><button class="modal-close" onclick="closeModal()">✕</button></div>${statusBanner}<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${shortcutsList.map(([k,v]) => `<div style="display:flex;align-items:center;gap:9px;font-size:12.5px"><span class="kbd" style="font-size:11px;padding:2px 7px;${!shortcutsEnabled && k!=='Esc' ? 'opacity:0.4;text-decoration:line-through' : ''}">${k}</span><span style="color:var(--text-dim)">${v}</span></div>`).join('')}</div></div></div>`;
+  const enabled = LS.get('shortcutsEnabled', true);
+  document.getElementById('modal-root').innerHTML = `<div class="modal-back" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h2 class="modal-title">⌨️ Shortcuts</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:14px">
+      <span style="font-size:13px;font-weight:600">Enable Shortcuts</span>
+      <div class="toggle ${enabled ? 'on' : ''}" onclick="toggleShortcutsSetting();this.classList.toggle('on')"></div>
+    </div>
+    ${enabled ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${[['/','Search'],['S','Surprise'],['?','Shortcuts'],['H','Home'],['M','Mood'],['D','Discover'],['C','Calendar'],['W','Watchlist'],['T','Theme'],['F','Fullscreen'],['N','Mini player'],['Esc','Close']].map(([k,v]) => `<div style="display:flex;align-items:center;gap:9px;font-size:12.5px"><span class="kbd" style="font-size:11px;padding:2px 7px">${k}</span><span style="color:var(--text-dim)">${v}</span></div>`).join('')}</div>` : '<p style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px">Shortcuts are disabled. Enable them to use keyboard commands.</p>'}
+  </div></div>`;
+}
+
+function toggleShortcutsSetting() {
+  const current = LS.get('shortcutsEnabled', true);
+  LS.set('shortcutsEnabled', !current);
+  // Update toggle button state if it exists
+  const toggle = document.getElementById('shortcuts-toggle');
+  if (toggle) toggle.classList.toggle('on');
+  toast(!current ? 'Shortcuts enabled' : 'Shortcuts disabled', '⌨️');
 }
 
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') { if (e.key === 'Escape') e.target.blur(); return; }
-  // Escape always works (critical for closing modals)
+  
+  // Check if shortcuts are enabled (Escape always works to close modals)
+  const shortcutsEnabled = LS.get('shortcutsEnabled', true);
+  
   if (e.key === 'Escape') { closeModal(); document.getElementById('ctx').classList.remove('visible'); return; }
-  // All other shortcuts can be disabled by user
   if (!shortcutsEnabled) return;
+  
   if (e.key === '/') { e.preventDefault(); document.getElementById('global-search').focus(); }
   else if (e.key === 's' || e.key === 'S') surpriseMe();
   else if (e.key === '?') openShortcuts();
