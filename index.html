@@ -1763,6 +1763,424 @@ body, .card, .navbar, .surface, .btn, .server-btn, .tab-btn, .poster, .mobile-bo
 .ww-person-card .ww-name { font-weight: 800; font-size: 13px; }
 .ww-person-card .ww-count { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
+/* =================================================================
+   v4.9.4 — PRO PERSON / ACTOR PAGE
+   ================================================================= */
+.person-hero {
+  position: relative; margin: 20px clamp(12px,2.4vw,36px) 0;
+  border-radius: 22px; overflow: hidden;
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--elev-2);
+  min-height: 400px;
+}
+.person-hero .ph-bg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center 25%;
+  filter: brightness(.28) saturate(1.15) blur(6px);
+  transform: scale(1.1);
+}
+.person-hero .ph-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--bg) 0%, rgba(5,6,11,.6) 40%, transparent 100%),
+              linear-gradient(to top, var(--bg) 5%, transparent 40%);
+}
+.person-hero .ph-content {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: 240px 1fr;
+  gap: 28px; padding: 32px;
+  align-items: start;
+}
+.person-hero .ph-poster-wrap {
+  position: relative;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08);
+}
+.person-hero .ph-poster {
+  width: 100%; aspect-ratio: 2/3; object-fit: cover;
+  background: var(--surface); display: block;
+}
+.person-hero .ph-info { min-width: 0; }
+.person-hero .ph-name {
+  font-size: clamp(1.9rem, 4vw, 3.1rem);
+  margin-bottom: 12px; line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.person-hero .ph-meta {
+  color: var(--text-dim); font-size: 12.5px;
+  display: flex; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.person-hero .ph-meta span { display: inline-flex; align-items: center; gap: 5px; }
+
+.ph-quick-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 10px; margin-bottom: 22px; max-width: 520px;
+}
+.pqs-cell {
+  padding: 12px 10px; border-radius: 12px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  text-align: center;
+}
+.pqs-cell .pqs-v {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: 22px; line-height: 1;
+  background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.pqs-cell .pqs-l {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .12em;
+  color: var(--text-muted); font-weight: 700; margin-top: 4px;
+}
+
+.ph-bio-wrap { margin-bottom: 16px; max-width: 720px; }
+.ph-bio-title {
+  font-size: 11px; font-weight: 800; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;
+}
+.ph-bio {
+  color: var(--text-dim); font-size: 13px; line-height: 1.7;
+  max-height: 96px; overflow: hidden; position: relative;
+  mask: linear-gradient(to bottom, #000 60%, transparent);
+  -webkit-mask: linear-gradient(to bottom, #000 60%, transparent);
+  transition: max-height .3s;
+}
+.ph-bio.expanded {
+  max-height: 1200px;
+  mask: none; -webkit-mask: none;
+}
+.ph-bio-toggle {
+  margin-top: 6px; background: transparent; border: none;
+  color: var(--accent); font-family: inherit; font-weight: 700;
+  font-size: 12px; cursor: pointer; padding: 4px 0;
+}
+.ph-bio-toggle:hover { text-decoration: underline; }
+
+.ph-social {
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .person-hero { min-height: auto; }
+  .person-hero .ph-content { grid-template-columns: 1fr; gap: 20px; padding: 22px; }
+  .person-hero .ph-poster-wrap { max-width: 180px; margin: 0 auto; }
+  .person-hero .ph-name { text-align: center; }
+  .person-hero .ph-meta { justify-content: center; }
+  .ph-quick-stats { max-width: none; }
+  .ph-social { justify-content: center; }
+}
+
+/* Person filmography tracker */
+.person-tracker {
+  display: flex; align-items: center; gap: 14px;
+  margin: 14px clamp(12px,2.4vw,36px) 0;
+  padding: 14px 20px; border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent-glow), transparent), var(--surface);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  flex-wrap: wrap;
+}
+.person-tracker .pt-ic { font-size: 28px; }
+.person-tracker .pt-body { flex: 1; min-width: 160px; }
+.person-tracker .pt-t { font-weight: 800; font-family: var(--font-display); font-size: 14px; }
+.person-tracker .pt-t b { background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 18px; }
+.person-tracker .pt-s { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
+.person-tracker .pt-bar {
+  width: 200px; height: 6px; border-radius: 6px;
+  background: var(--border-strong); overflow: hidden; flex-shrink: 0;
+}
+.person-tracker .pt-bar > i {
+  display: block; height: 100%;
+  background: var(--brand-grad);
+  transition: width .5s cubic-bezier(.22,1,.36,1);
+}
+.person-tracker .pt-pct {
+  font-family: var(--font-display); font-size: 24px; font-weight: 800;
+  background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .person-tracker .pt-bar { flex: 1 1 100%; order: 5; width: auto; }
+}
+
+/* Person tabs + sort */
+.person-controls {
+  display: flex; gap: 12px; align-items: center;
+  margin: 22px clamp(12px,2.4vw,36px) 12px;
+  flex-wrap: wrap;
+}
+.pc-tabs {
+  display: flex; gap: 4px; padding: 4px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px;
+  flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none;
+}
+.pc-tabs::-webkit-scrollbar { display: none; }
+.pc-tab {
+  padding: 9px 14px; border-radius: 9px;
+  background: transparent; border: none;
+  color: var(--text-dim); font-family: inherit; font-weight: 700; font-size: 12.5px;
+  cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: color .15s, background-color .15s;
+  min-height: 38px;
+}
+.pc-tab:hover { color: var(--text); background: var(--surface-2); }
+.pc-tab.active { background: var(--brand-grad); color: #000; box-shadow: 0 3px 12px var(--accent-glow); }
+.pc-tab .pc-count {
+  padding: 1px 8px; border-radius: 999px;
+  background: rgba(0,0,0,.18); font-size: 10.5px; font-weight: 800;
+}
+.pc-tab.active .pc-count { background: rgba(0,0,0,.28); }
+
+.person-controls .f-select { min-height: 40px; }
+
+/* Person role cards (list-style, more info dense) */
+.person-role-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+  margin: 0 clamp(12px,2.4vw,36px);
+}
+.person-role {
+  display: grid; grid-template-columns: 64px 1fr;
+  gap: 12px; padding: 10px;
+  border-radius: 12px; background: var(--surface); border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color .18s, transform .12s, background-color .15s;
+}
+.person-role:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  transform: translateY(-2px);
+  background: var(--surface-2);
+}
+.person-role img {
+  width: 64px; aspect-ratio: 2/3; object-fit: cover;
+  border-radius: 8px; background: var(--bg-2); display: block;
+}
+.person-role .pr-body { min-width: 0; padding: 4px 0; }
+.person-role .pr-title {
+  font-weight: 700; font-size: 13.5px; line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.person-role .pr-check { color: var(--good); font-weight: 900; margin-right: 2px; }
+.person-role .pr-year { color: var(--text-muted); font-weight: 500; font-size: 12px; }
+.person-role .pr-role {
+  font-size: 11.5px; color: var(--text-dim); margin-top: 4px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-style: italic;
+}
+.person-role .pr-meta {
+  font-size: 10.5px; color: var(--text-muted); margin-top: 6px;
+  display: flex; gap: 8px; align-items: center;
+}
+.person-role .pr-eps {
+  font-size: 11px; color: var(--text-muted); margin-top: 6px;
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+.pr-eps-badge {
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--accent-glow); color: var(--accent);
+  font-weight: 700; font-size: 10.5px;
+}
+
+/* =================================================================
+   v4.9.5 — AGE GATE + EPISODE DRILL-DOWN
+   ================================================================= */
+
+/* Age gate modal */
+.age-gate-back {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(3,4,8,.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; animation: agFade .4s ease;
+}
+@keyframes agFade { from { opacity: 0; } to { opacity: 1; } }
+.age-gate-card {
+  max-width: 460px; width: 100%;
+  background: var(--bg-2); border: 1px solid var(--border-strong);
+  border-radius: 22px; padding: 32px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.7), 0 0 60px var(--accent-glow);
+  text-align: center;
+  animation: agPop .5s cubic-bezier(.22,1,.36,1);
+}
+@keyframes agPop { from { transform: scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
+.age-gate-icon { font-size: 54px; margin-bottom: 8px; animation: agIcSpin 1s cubic-bezier(.22,1,.36,1); }
+@keyframes agIcSpin { from { transform: rotate(-20deg) scale(0.5); opacity: 0; } to { transform: none; opacity: 1; } }
+.age-gate-title {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: 26px; margin-bottom: 8px;
+}
+.age-gate-title .gradient-text {
+  background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.age-gate-sub {
+  color: var(--text-dim); font-size: 14px; line-height: 1.6;
+  margin-bottom: 22px;
+}
+.age-gate-form {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+  margin-bottom: 18px;
+}
+.age-gate-form label {
+  display: block; font-size: 10.5px; font-weight: 800;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .12em;
+  margin-bottom: 6px; text-align: left;
+}
+.age-gate-form select {
+  width: 100%; padding: 14px 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; color: var(--text);
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  cursor: pointer; outline: none;
+  transition: border-color .15s;
+  min-height: 50px;
+}
+.age-gate-form select:focus { border-color: var(--accent); }
+.age-gate-preview {
+  margin: 14px 0; padding: 12px 16px;
+  border-radius: 12px; background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 13px; color: var(--text-dim);
+  display: none;
+}
+.age-gate-preview.show { display: block; animation: agPop .3s; }
+.age-gate-preview .ap-age {
+  font-family: var(--font-display); font-weight: 800; font-size: 22px;
+  background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.age-gate-actions { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
+.age-gate-actions .btn { min-height: 48px; padding: 12px 22px; font-size: 14px; }
+.age-gate-note {
+  margin-top: 16px; padding: 10px 12px;
+  background: color-mix(in srgb, var(--mid) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mid) 30%, transparent);
+  border-radius: 10px;
+  font-size: 11.5px; color: var(--text-dim);
+  text-align: left;
+}
+.age-gate-note b { color: var(--mid); }
+
+/* Birthday banner (shown once per birthday) */
+.birthday-banner {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 20px; margin: 14px clamp(12px,2.4vw,36px) 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 22%, transparent), transparent), var(--surface);
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  position: relative; animation: nudgeSlide .5s cubic-bezier(.22,1,.36,1);
+}
+.birthday-banner .bd-ic { font-size: 32px; animation: bdBounce 1.4s ease-in-out infinite; }
+@keyframes bdBounce { 0%,100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-4px) rotate(5deg); } }
+.birthday-banner .bd-body { flex: 1; min-width: 0; }
+.birthday-banner .bd-t {
+  font-family: var(--font-display); font-weight: 800; font-size: 15px;
+  background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.birthday-banner .bd-s { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
+.birthday-banner .bd-x { background: transparent; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+.birthday-banner .bd-x:hover { color: var(--text); background: var(--surface-2); }
+
+/* Adult content warning tag */
+.adult-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 5px;
+  background: color-mix(in srgb, var(--bad) 20%, transparent);
+  color: var(--bad); font-weight: 800; font-size: 10px;
+  border: 1px solid color-mix(in srgb, var(--bad) 45%, transparent);
+}
+.poster .adult-block, .person-role .adult-block, .cast-item .adult-block {
+  position: absolute; inset: 0; z-index: 8;
+  background: rgba(3,4,8,0.92); backdrop-filter: blur(14px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 12px; border-radius: inherit;
+  color: var(--text);
+}
+.adult-block .ab-ic { font-size: 24px; margin-bottom: 4px; }
+.adult-block .ab-t { font-size: 11px; font-weight: 800; color: var(--bad); text-transform: uppercase; letter-spacing: .1em; }
+.adult-block .ab-s { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+/* Episode drill-down (person page) */
+.person-role .pr-eps-btn {
+  margin-top: 6px; padding: 5px 11px;
+  background: var(--bg-2); border: 1px solid var(--border);
+  color: var(--text-dim); font-family: inherit; font-size: 11px; font-weight: 700;
+  border-radius: 999px; cursor: pointer;
+  transition: color .15s, border-color .15s, background-color .15s;
+}
+.person-role .pr-eps-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-glow); }
+.pr-eps-list {
+  margin-top: 8px; padding: 10px 12px;
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 10px;
+  animation: agPop .25s cubic-bezier(.22,1,.36,1);
+}
+.pr-eps-list .prel-loading { text-align: center; color: var(--text-muted); font-size: 11px; padding: 10px 0; }
+.pr-eps-list .prel-summary {
+  display: flex; align-items: center; gap: 8px; padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11.5px; color: var(--text-dim); font-weight: 700;
+  margin-bottom: 8px;
+}
+.pr-eps-list .prel-summary .prel-total {
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--accent-glow); color: var(--accent);
+  font-weight: 800; font-size: 10.5px;
+}
+.pr-eps-list .prel-role {
+  display: flex; justify-content: space-between;
+  padding: 5px 0; font-size: 11.5px;
+  border-bottom: 1px dashed var(--border);
+}
+.pr-eps-list .prel-role:last-child { border-bottom: none; }
+.pr-eps-list .prel-role .prel-char {
+  color: var(--text); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 65%;
+}
+.pr-eps-list .prel-role .prel-eps-count {
+  color: var(--accent); font-weight: 800;
+}
+.pr-eps-list .prel-per-season {
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.pr-eps-list .prel-season-chip {
+  padding: 3px 9px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  font-size: 10.5px; color: var(--text-dim); font-weight: 700;
+}
+.pr-eps-list .prel-season-chip b { color: var(--accent); }
+
+/* v4.9.6 — specific episode chips */
+.pr-eps-list .prel-role { display: block; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+.pr-eps-list .prel-role:last-child { border-bottom: none; }
+.pr-eps-list .prel-role-hd {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.pr-eps-list .prel-ep-list {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  margin-top: 4px; max-height: 140px; overflow-y: auto;
+  padding-right: 4px;
+}
+.pr-eps-list .prel-ep-chip {
+  padding: 3px 8px; border-radius: 6px;
+  background: var(--accent-glow); color: var(--accent);
+  font-size: 10.5px; font-weight: 800;
+  font-family: var(--font-display); letter-spacing: .02em;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  cursor: pointer;
+  transition: background-color .12s, transform .1s;
+}
+.pr-eps-list .prel-ep-chip:hover {
+  background: var(--accent); color: #000;
+  transform: scale(1.05);
+}
+.pr-eps-list .prel-season-summary {
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 10.5px; color: var(--text-muted);
+  font-weight: 600;
+}
+.pr-eps-list .prel-season-summary b { color: var(--accent); font-family: var(--font-display); }
+
 </style>
 </head>
 <body data-theme="dark">
@@ -5718,11 +6136,231 @@ function savePreset() { const n = document.getElementById('pn').value.trim(); if
 function loadPreset(n) { const p = LS.get('presets', {}); if (p[n]) location.hash = '/discover?' + p[n]; closeModal(); }
 function delPreset(n) { const p = LS.get('presets', {}); delete p[n]; LS.set('presets', p); openPresets(); }
 
+/* =================================================================
+   v4.9.4 — PRO PERSON / ACTOR PAGE
+   Organized sections: Known For, Movies, TV Shows (with episode counts),
+   Behind the Scenes, career timeline, filters, filmography tracker.
+   ================================================================= */
+let _personState = { sort: 'popularity', typeFilter: 'all' };
 async function renderPerson(view, id) {
-  const [det, cred] = await Promise.all([tmdb(`/person/${id}`), tmdb(`/person/${id}/combined_credits`)]);
-  let film = (cred.cast || []).concat(cred.crew || []).filter(x => x.poster_path).sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-  const seen = new Set(); film = film.filter(x => !seen.has(x.id) && (seen.add(x.id), true));
-  view.innerHTML = `<div style="display:grid;grid-template-columns:240px 1fr;gap:32px;margin:24px clamp(12px, 2.4vw, 36px) 36px;align-items:start"><div><img src="${posterUrl(det.profile_path)}" style="width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:16px;background:var(--surface);border:1px solid var(--border);display:block" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22><rect width=%22200%22 height=%22300%22 fill=%22%230a0c14%22/></svg>'" decoding="async" /></div><div><span class="genre-tag" style="margin-bottom:12px">${esc(det.known_for_department || 'Performer')}</span><h1 class="display" style="font-size:clamp(1.7rem,3.5vw,2.8rem);margin-bottom:10px">${esc(det.name)}</h1><div style="color:var(--text-dim);margin-bottom:18px;font-size:12.5px;display:flex;gap:14px;flex-wrap:wrap">${det.birthday ? `<span>🎂 ${det.birthday}${det.deathday ? ' — ' + det.deathday : ''}</span>` : ''}${det.place_of_birth ? `<span>📍 ${esc(det.place_of_birth)}</span>` : ''}</div><h3 style="font-weight:700;margin-bottom:6px;font-size:14px">Biography</h3><p style="color:var(--text-dim);font-size:12.5px;line-height:1.7;max-height:280px;overflow-y:auto;padding-right:8px">${esc(det.biography || 'No biography available.')}</p></div></div><div style="margin:0 clamp(12px, 2.4vw, 36px) 36px"><div class="section-header"><h2 class="section-title">🎬 Filmography</h2><span class="section-sub">${film.length} titles</span></div><div class="cards-grid">${film.slice(0, 48).map((it, i) => card(it, Math.min(i * 16, 220))).join('')}</div></div>`;
+  const [det, cred, ext] = await Promise.all([
+    tmdb(`/person/${id}`),
+    tmdb(`/person/${id}/combined_credits`),
+    tmdb(`/person/${id}/external_ids`).catch(() => ({})),
+  ]);
+  // Build unique lists ------------------------------------------------------
+  const dedupe = (arr, keyFn) => { const seen = new Set(); return arr.filter(x => { const k = keyFn(x); if (seen.has(k)) return false; seen.add(k); return true; }); };
+  const allCast = (cred.cast || []).filter(x => x.poster_path && (x.media_type === 'movie' || x.media_type === 'tv'));
+  const allCrew = (cred.crew || []).filter(x => x.poster_path && (x.media_type === 'movie' || x.media_type === 'tv'));
+  // For TV — merge multiple entries per show (same actor can appear in credits multiple times as different characters/departments)
+  const tvMerged = {};
+  allCast.filter(x => x.media_type === 'tv').forEach(x => {
+    const k = 'tv_' + x.id;
+    if (!tvMerged[k]) tvMerged[k] = { ...x, _eps: 0, _chars: new Set() };
+    tvMerged[k]._eps += x.episode_count || 0;
+    if (x.character) tvMerged[k]._chars.add(x.character);
+  });
+  const tvShows = Object.values(tvMerged).map(x => ({ ...x, character: Array.from(x._chars).slice(0, 2).join(', ') || x.character || '' }));
+  const movies = dedupe(allCast.filter(x => x.media_type === 'movie'), x => x.id);
+  const crewWork = dedupe(allCrew, x => x.id + '_' + (x.job || ''));
+
+  // Sort helpers
+  const yr = x => +((x.release_date || x.first_air_date || '0').slice(0, 4)) || 0;
+  const sortItems = (arr) => {
+    const s = _personState.sort;
+    if (s === 'popularity') return arr.slice().sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+    if (s === 'rating') return arr.slice().sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+    if (s === 'newest') return arr.slice().sort((a, b) => yr(b) - yr(a));
+    if (s === 'oldest') return arr.slice().sort((a, b) => (yr(a) || 9999) - (yr(b) || 9999));
+    return arr;
+  };
+
+  // "Known for" = TMDB's own list (top 4-8 popular titles)
+  const knownFor = dedupe([...allCast].sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0)), x => x.id).slice(0, 8);
+
+  // Career span
+  const years = [...movies, ...tvShows].map(yr).filter(Boolean);
+  const yearMin = years.length ? Math.min(...years) : null;
+  const yearMax = years.length ? Math.max(...years) : null;
+
+  // Watched tracking
+  const uniqueAll = dedupe([...movies, ...tvShows], x => x.media_type + '_' + x.id);
+  const watchedCount = uniqueAll.filter(x => isItemWatched(x.id, x.media_type)).length;
+  const watchedPct = uniqueAll.length ? Math.round(watchedCount / uniqueAll.length * 100) : 0;
+
+  // Age display
+  const ageText = (() => {
+    if (!det.birthday) return '';
+    const bd = new Date(det.birthday);
+    const end = det.deathday ? new Date(det.deathday) : new Date();
+    const age = Math.floor((end - bd) / (365.25 * 864e5));
+    return det.deathday ? ` (died at ${age})` : ` (${age} yrs)`;
+  })();
+
+  const socialIcons = [];
+  if (ext.instagram_id) socialIcons.push(`<a class="ext-link" href="https://instagram.com/${ext.instagram_id}" target="_blank" rel="noopener">📷 Instagram</a>`);
+  if (ext.twitter_id) socialIcons.push(`<a class="ext-link" href="https://twitter.com/${ext.twitter_id}" target="_blank" rel="noopener">🐦 Twitter</a>`);
+  if (ext.imdb_id) socialIcons.push(`<a class="ext-link" href="https://imdb.com/name/${ext.imdb_id}" target="_blank" rel="noopener">🎞 IMDb</a>`);
+  if (ext.facebook_id) socialIcons.push(`<a class="ext-link" href="https://facebook.com/${ext.facebook_id}" target="_blank" rel="noopener">📘 Facebook</a>`);
+  socialIcons.push(`<a class="ext-link" href="https://www.themoviedb.org/person/${id}" target="_blank" rel="noopener">🎬 TMDB</a>`);
+
+  // ---- Render ----
+  view.innerHTML = `
+    <div class="person-hero">
+      <div class="ph-bg" style="background-image:url('${det.profile_path ? IMG + 'original' + det.profile_path : ''}')"></div>
+      <div class="ph-content">
+        <div class="ph-poster-wrap">
+          <img class="ph-poster" src="${posterUrl(det.profile_path, 'w500')}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22><rect width=%22200%22 height=%22300%22 fill=%22%230a0c14%22/></svg>'" alt="${esc(det.name)}">
+        </div>
+        <div class="ph-info">
+          <span class="genre-tag" style="margin-bottom:10px">${esc(det.known_for_department || 'Performer')}</span>
+          <h1 class="display ph-name">${esc(det.name)}</h1>
+          <div class="ph-meta">
+            ${det.birthday ? `<span>🎂 ${det.birthday}${ageText}${det.deathday ? ' — 🕊️ ' + det.deathday : ''}</span>` : ''}
+            ${det.place_of_birth ? `<span>📍 ${esc(det.place_of_birth)}</span>` : ''}
+            ${yearMin && yearMax ? `<span>🎬 Active ${yearMin}${yearMax > yearMin ? '–' + yearMax : '+'}</span>` : ''}
+          </div>
+          <div class="ph-quick-stats">
+            <div class="pqs-cell"><div class="pqs-v">${movies.length}</div><div class="pqs-l">Movies</div></div>
+            <div class="pqs-cell"><div class="pqs-v">${tvShows.length}</div><div class="pqs-l">TV Shows</div></div>
+            <div class="pqs-cell"><div class="pqs-v">${tvShows.reduce((s, x) => s + (x._eps || 0), 0)}</div><div class="pqs-l">TV Episodes</div></div>
+            ${crewWork.length ? `<div class="pqs-cell"><div class="pqs-v">${crewWork.length}</div><div class="pqs-l">Crew Roles</div></div>` : ''}
+          </div>
+          ${det.biography ? `<div class="ph-bio-wrap">
+            <h3 class="ph-bio-title">Biography</h3>
+            <p class="ph-bio" id="ph-bio-text">${esc(det.biography)}</p>
+            ${det.biography.length > 380 ? `<button class="ph-bio-toggle" onclick="this.previousElementSibling.classList.toggle('expanded');this.textContent=this.textContent==='Read more ↓'?'Show less ↑':'Read more ↓'">Read more ↓</button>` : ''}
+          </div>` : ''}
+          <div class="ph-social">${socialIcons.join('')}</div>
+        </div>
+      </div>
+    </div>
+
+    ${uniqueAll.length ? `<div class="person-tracker">
+      <div class="pt-ic">🎬</div>
+      <div class="pt-body">
+        <div class="pt-t">You've watched <b>${watchedCount}</b> of ${uniqueAll.length} titles</div>
+        <div class="pt-s">${watchedPct}% of ${esc(det.name)}'s filmography</div>
+      </div>
+      <div class="pt-bar"><i style="width:${watchedPct}%"></i></div>
+      <div class="pt-pct">${watchedPct}%</div>
+    </div>` : ''}
+
+    ${knownFor.length ? `<section class="section" id="ps-known">
+      <div class="section-header"><h2 class="section-title">⭐ Known For</h2><span class="section-sub">Top ${knownFor.length}</span></div>
+      <div class="cards-row">${knownFor.map((it, i) => card({ ...it, media_type: it.media_type }, Math.min(i * 20, 220))).join('')}</div>
+    </section>` : ''}
+
+    <div class="person-controls">
+      <div class="pc-tabs">
+        <button class="pc-tab ${_personState.typeFilter==='all'?'active':''}" onclick="_setPersonFilter('all')">All <span class="pc-count">${movies.length + tvShows.length}</span></button>
+        <button class="pc-tab ${_personState.typeFilter==='movie'?'active':''}" onclick="_setPersonFilter('movie')">🎬 Movies <span class="pc-count">${movies.length}</span></button>
+        <button class="pc-tab ${_personState.typeFilter==='tv'?'active':''}" onclick="_setPersonFilter('tv')">📺 TV Shows <span class="pc-count">${tvShows.length}</span></button>
+        ${crewWork.length ? `<button class="pc-tab ${_personState.typeFilter==='crew'?'active':''}" onclick="_setPersonFilter('crew')">🎥 Behind the Scenes <span class="pc-count">${crewWork.length}</span></button>` : ''}
+      </div>
+      <select class="f-select" onchange="_personState.sort=this.value;_reRenderPersonSections(${id})">
+        <option value="popularity" ${_personState.sort==='popularity'?'selected':''}>🔥 Most popular</option>
+        <option value="rating" ${_personState.sort==='rating'?'selected':''}>⭐ Highest rated</option>
+        <option value="newest" ${_personState.sort==='newest'?'selected':''}>🆕 Newest</option>
+        <option value="oldest" ${_personState.sort==='oldest'?'selected':''}>📼 Oldest</option>
+      </select>
+    </div>
+
+    <div id="ps-sections">${_renderPersonSections(movies, tvShows, crewWork, sortItems)}</div>
+  `;
+  // Save for re-render
+  window._personCache = { id, movies, tvShows, crewWork };
+}
+
+function _renderPersonSections(movies, tvShows, crewWork, sortItems) {
+  const filter = _personState.typeFilter;
+  const sortedMovies = sortItems(movies);
+  const sortedTv = sortItems(tvShows);
+  const sortedCrew = sortItems(crewWork);
+  let html = '';
+
+  const movieCard = (it, i) => {
+    const roleTxt = it.character ? `as ${esc(it.character)}` : '';
+    const y = (it.release_date || '').slice(0, 4);
+    const w = isItemWatched(it.id, 'movie');
+    return `<div class="person-role" onclick="navigate('/movie/${it.id}')">
+      <img loading="lazy" src="${posterUrl(it.poster_path, 'w185')}" onerror="this.style.opacity=.2">
+      <div class="pr-body">
+        <div class="pr-title">${w ? '<span class="pr-check">✓</span> ' : ''}${esc(titleOf(it))}${y ? ` <span class="pr-year">(${y})</span>` : ''}</div>
+        <div class="pr-role">${roleTxt}</div>
+        <div class="pr-meta">${it.vote_average ? `⭐ ${it.vote_average.toFixed(1)}` : ''} ${it.vote_count ? `· 🗳 ${it.vote_count.toLocaleString()}` : ''}</div>
+      </div>
+    </div>`;
+  };
+  const tvCard = (it, i) => {
+    const roleTxt = it.character ? `as ${esc(it.character)}` : '';
+    const y = (it.first_air_date || '').slice(0, 4);
+    const eps = it._eps || 0;
+    const w = isItemWatched(it.id, 'tv');
+    return `<div class="person-role person-role-tv" onclick="navigate('/tv/${it.id}')">
+      <img loading="lazy" src="${posterUrl(it.poster_path, 'w185')}" onerror="this.style.opacity=.2">
+      <div class="pr-body">
+        <div class="pr-title">${w ? '<span class="pr-check">✓</span> ' : ''}${esc(titleOf(it))}${y ? ` <span class="pr-year">(${y})</span>` : ''}</div>
+        <div class="pr-role">${roleTxt}</div>
+        <div class="pr-eps"><span class="pr-eps-badge">📺 ${eps} episode${eps === 1 ? '' : 's'}</span> ${it.vote_average ? `⭐ ${it.vote_average.toFixed(1)}` : ''}</div>
+      </div>
+    </div>`;
+  };
+  const crewCardEl = (it, i) => {
+    const y = (it.release_date || it.first_air_date || '').slice(0, 4);
+    return `<div class="person-role" onclick="navigate('/${it.media_type}/${it.id}')">
+      <img loading="lazy" src="${posterUrl(it.poster_path, 'w185')}" onerror="this.style.opacity=.2">
+      <div class="pr-body">
+        <div class="pr-title">${esc(titleOf(it))}${y ? ` <span class="pr-year">(${y})</span>` : ''}</div>
+        <div class="pr-role">${esc(it.job || 'Crew')}${it.department && it.department !== it.job ? ` · ${esc(it.department)}` : ''}</div>
+        <div class="pr-meta">${it.media_type === 'tv' ? '📺 TV' : '🎬 Movie'} ${it.vote_average ? `· ⭐ ${it.vote_average.toFixed(1)}` : ''}</div>
+      </div>
+    </div>`;
+  };
+
+  if (filter === 'all' || filter === 'movie') {
+    if (sortedMovies.length) html += `<section class="section">
+      <div class="section-header"><h2 class="section-title">🎬 Movies</h2><span class="section-sub">${sortedMovies.length} film${sortedMovies.length===1?'':'s'}</span></div>
+      <div class="person-role-grid">${sortedMovies.map(movieCard).join('')}</div>
+    </section>`;
+  }
+  if (filter === 'all' || filter === 'tv') {
+    if (sortedTv.length) html += `<section class="section">
+      <div class="section-header"><h2 class="section-title">📺 TV Shows</h2><span class="section-sub">${sortedTv.length} show${sortedTv.length===1?'':'s'} · ${sortedTv.reduce((s,x)=>s+(x._eps||0),0)} episodes</span></div>
+      <div class="person-role-grid">${sortedTv.map(tvCard).join('')}</div>
+    </section>`;
+  }
+  if ((filter === 'all' || filter === 'crew') && sortedCrew.length) {
+    html += `<section class="section">
+      <div class="section-header"><h2 class="section-title">🎥 Behind the Scenes</h2><span class="section-sub">${sortedCrew.length} credit${sortedCrew.length===1?'':'s'}</span></div>
+      <div class="person-role-grid">${sortedCrew.map(crewCardEl).join('')}</div>
+    </section>`;
+  }
+  if (!html) html = '<div class="lib-empty" style="margin:20px clamp(12px,2.4vw,36px)"><div class="em-ic">📭</div><h3>No credits in this section</h3></div>';
+  return html;
+}
+function _setPersonFilter(f) {
+  _personState.typeFilter = f;
+  document.querySelectorAll('.pc-tab').forEach((t, i) => {
+    const which = ['all', 'movie', 'tv', 'crew'][i];
+    t.classList.toggle('active', which === f);
+  });
+  _reRenderPersonSections();
+}
+function _reRenderPersonSections() {
+  if (!window._personCache) return;
+  const { movies, tvShows, crewWork } = window._personCache;
+  const yr = x => +((x.release_date || x.first_air_date || '0').slice(0, 4)) || 0;
+  const sortItems = (arr) => {
+    const s = _personState.sort;
+    if (s === 'popularity') return arr.slice().sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+    if (s === 'rating') return arr.slice().sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+    if (s === 'newest') return arr.slice().sort((a, b) => yr(b) - yr(a));
+    if (s === 'oldest') return arr.slice().sort((a, b) => (yr(a) || 9999) - (yr(b) || 9999));
+    return arr;
+  };
+  const host = document.getElementById('ps-sections');
+  if (host) host.innerHTML = _renderPersonSections(movies, tvShows, crewWork, sortItems);
 }
 
 function renderWatchlist(view) {
@@ -6887,8 +7525,14 @@ function initOnboarding() {
     fab.onclick = openHelp;
     document.body.appendChild(fab);
   }
-  // Show welcome modal on first visit
-  if (!LS.get('tourDone', false)) setTimeout(openWelcome, 1200);
+  // Show welcome modal on first visit — but wait for the age gate to be done
+  if (!LS.get('tourDone', false)) {
+    const tryShow = () => {
+      if (document.getElementById('age-gate')) { setTimeout(tryShow, 500); return; }
+      openWelcome();
+    };
+    setTimeout(tryShow, 1400);
+  }
 }
 /* Escape key exits tour */
 document.addEventListener('keydown', function(e) {
@@ -7328,13 +7972,42 @@ function injectDetailWatchedBtn(mt, id) {
   const btn = document.createElement('button');
   btn.id = 'detail-watched-btn';
   btn.className = 'btn ' + (on ? 'btn-ghost' : 'btn-secondary');
-  btn.style.cssText = 'margin-top:10px;margin-right:8px';
   btn.innerHTML = on ? '✅ Watched' : '✓ Mark as Watched';
   btn.onclick = () => {
     const item = window._lastDet || { id, media_type: mt };
     toggleItemWatched(id, mt, { ...item, media_type: mt });
+    // Also refresh label immediately without a full re-render
+    const nowOn = isItemWatched(id, mt);
+    btn.innerHTML = nowOn ? '✅ Watched' : '✓ Mark as Watched';
+    btn.className = 'btn ' + (nowOn ? 'btn-ghost' : 'btn-secondary');
   };
-  (actions || target).appendChild(btn);
+  // v4.9.4 — Place the Watched button RIGHT NEXT to the Watchlist (+ Save) button
+  const wlBtn = document.getElementById('wl-btn');
+  if (wlBtn && wlBtn.parentElement === actions) {
+    wlBtn.insertAdjacentElement('afterend', btn);
+  } else {
+    (actions || target).appendChild(btn);
+  }
+  // v4.9.4 — Upgrade the Watchlist button label to be more explicit and match the pair
+  if (wlBtn) {
+    const isSaved = inWatchlist(id, mt);
+    wlBtn.innerHTML = isSaved ? '⭐ In Watchlist' : '⭐ Add to Watchlist';
+    // Keep the original onclick working, just refresh label after click
+    const origClick = wlBtn.onclick;
+    wlBtn.onclick = null; // remove any existing binding by replacing wholesale
+    wlBtn.setAttribute('onclick', ''); // clear inline
+    wlBtn.addEventListener('click', function _wlHandler(e) {
+      const item = window._lastDet ? {
+        id, media_type: mt, title: titleOf(window._lastDet),
+        poster_path: window._lastDet.poster_path,
+        vote_average: window._lastDet.vote_average || 0,
+        release_date: window._lastDet.release_date || window._lastDet.first_air_date || ''
+      } : { id, media_type: mt };
+      toggleWatchlist(item);
+      const nowSaved = inWatchlist(id, mt);
+      wlBtn.innerHTML = nowSaved ? '⭐ In Watchlist' : '⭐ Add to Watchlist';
+    });
+  }
 }
 
 function injectAdShieldNotice() {
@@ -8316,25 +8989,7 @@ function _renderWeeklyChallenge() {
 /* =================================================================
    ACTOR FILMOGRAPHY TRACKER (on person page)
    ================================================================= */
-(function patchPerson() {
-  const orig = window.renderPerson;
-  if (typeof orig !== 'function') return;
-  window.renderPerson = async function(view, id) {
-    await orig.call(this, view, id);
-    try {
-      const cred = await tmdb(`/person/${id}/combined_credits`);
-      const all = (cred.cast || []).filter(x => x.poster_path && (x.media_type === 'movie' || x.media_type === 'tv'));
-      const seen = new Set(); const unique = all.filter(x => !seen.has(x.id) && (seen.add(x.id), true));
-      const watched = unique.filter(x => isItemWatched(x.id, x.media_type)).length;
-      const pct = unique.length ? Math.round(watched / unique.length * 100) : 0;
-      const target = view.querySelector('.section-header');
-      if (target) {
-        const html = `<div class="actor-track-hero"><div class="at-ic">🎬</div><div class="at-body"><div class="at-t">You've watched ${watched} of ${unique.length} of their titles</div><div class="at-s">${pct}% of their filmography</div></div><div class="at-bar" style="width:200px"><i style="width:${pct}%"></i></div><div class="at-pct">${pct}%</div></div>`;
-        target.insertAdjacentHTML('beforebegin', html);
-      }
-    } catch {}
-  };
-})();
+/* patchPerson removed in v4.9.4 — renderPerson now includes tracker natively */
 
 /* =================================================================
    RESUME TIMESTAMPS — start VidLink at saved second
@@ -9295,6 +9950,400 @@ function _saveDiaryFull(id, mt, ts) {
   }
 })();
 
+/* =================================================================
+   v4.9.5 — AGE GATE + EPISODE DRILL-DOWN
+   ================================================================= */
+
+/* ---------- Age gate ---------- */
+function getBirthDate() { return LS.get('birthDate', null); }
+function getUserAge() {
+  const b = getBirthDate();
+  if (!b || !b.y || !b.m || !b.d) return null;
+  const bd = new Date(b.y, b.m - 1, b.d);
+  const now = new Date();
+  let age = now.getFullYear() - bd.getFullYear();
+  const mDiff = now.getMonth() - bd.getMonth();
+  if (mDiff < 0 || (mDiff === 0 && now.getDate() < bd.getDate())) age--;
+  return age;
+}
+function isAdultAllowed() {
+  const age = getUserAge();
+  return age === null ? false : age >= 18;
+}
+function _daysUntilBirthday(bd) {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const next = new Date(now.getFullYear(), bd.m - 1, bd.d);
+  if (next < now) next.setFullYear(next.getFullYear() + 1);
+  return Math.round((next - now) / 864e5);
+}
+function _daysUntil18() {
+  const b = getBirthDate(); if (!b) return null;
+  const eighteen = new Date(b.y + 18, b.m - 1, b.d);
+  const now = new Date();
+  if (eighteen <= now) return 0;
+  return Math.ceil((eighteen - now) / 864e5);
+}
+
+function showAgeGate() {
+  if (document.getElementById('age-gate')) return;
+  const currentYear = new Date().getFullYear();
+  const back = document.createElement('div');
+  back.id = 'age-gate'; back.className = 'age-gate-back';
+  back.innerHTML = `
+    <div class="age-gate-card">
+      <div class="age-gate-icon">🎂</div>
+      <div class="age-gate-title">Welcome to <span class="gradient-text">CineGlow</span></div>
+      <div class="age-gate-sub">Before we start, tell us when you were born so we can tailor the content to your age.</div>
+      <div class="age-gate-form">
+        <div>
+          <label>Day</label>
+          <select id="ag-d">${Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('')}</select>
+        </div>
+        <div>
+          <label>Month</label>
+          <select id="ag-m">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((n,i)=>`<option value="${i+1}">${n}</option>`).join('')}</select>
+        </div>
+        <div>
+          <label>Year</label>
+          <select id="ag-y">${Array.from({length:currentYear-1900+1},(_,i)=>{const y=currentYear-i;return `<option value="${y}"${y===2005?' selected':''}>${y}</option>`}).join('')}</select>
+        </div>
+      </div>
+      <div class="age-gate-preview" id="ag-preview">
+        You are <span class="ap-age" id="ag-preview-age">—</span> years old
+        <div id="ag-preview-msg" style="margin-top:4px;font-size:12px"></div>
+      </div>
+      <div class="age-gate-note">
+        <b>Privacy:</b> This is saved only on your device — it never leaves your browser.
+      </div>
+      <div class="age-gate-actions">
+        <button class="btn btn-primary btn-lg" onclick="_saveAgeGate()">✓ Continue</button>
+      </div>
+    </div>`;
+  document.body.appendChild(back);
+  const d = document.getElementById('ag-d');
+  const m = document.getElementById('ag-m');
+  const y = document.getElementById('ag-y');
+  const upd = () => {
+    const dd = +d.value, mm = +m.value, yy = +y.value;
+    const bd = new Date(yy, mm - 1, dd);
+    const now = new Date();
+    let age = now.getFullYear() - bd.getFullYear();
+    const mDiff = now.getMonth() - bd.getMonth();
+    if (mDiff < 0 || (mDiff === 0 && now.getDate() < bd.getDate())) age--;
+    const preview = document.getElementById('ag-preview');
+    const ageEl = document.getElementById('ag-preview-age');
+    const msgEl = document.getElementById('ag-preview-msg');
+    if (age >= 0 && age < 130) {
+      preview.classList.add('show');
+      ageEl.textContent = age;
+      if (age < 13) msgEl.innerHTML = `👶 We\'ll show family-friendly content only.`;
+      else if (age < 18) {
+        const d18 = Math.ceil((new Date(yy + 18, mm - 1, dd) - now) / 864e5);
+        msgEl.innerHTML = `🎬 You\'ll see everything except 18+ content. <b>Auto-unlocks in ${d18} day${d18===1?'':'s'}</b> when you turn 18!`;
+      } else msgEl.innerHTML = `🎉 Full access — including 18+ content.`;
+    } else {
+      preview.classList.remove('show');
+    }
+  };
+  d.addEventListener('change', upd);
+  m.addEventListener('change', upd);
+  y.addEventListener('change', upd);
+  upd();
+}
+function _saveAgeGate() {
+  const d = +document.getElementById('ag-d').value;
+  const m = +document.getElementById('ag-m').value;
+  const y = +document.getElementById('ag-y').value;
+  LS.set('birthDate', { y, m, d });
+  const age = getUserAge();
+  const el = document.getElementById('age-gate'); if (el) el.remove();
+  toast(age >= 18 ? `Welcome! 🎬 Full access unlocked` : age >= 13 ? `Welcome! 🎬 Some 18+ content is hidden` : `Welcome! 👶 Family-friendly mode`, '🎂');
+  // Re-render everything so filters apply immediately
+  try { render(); } catch {}
+  // Ask permission to show yearly birthday message
+  setTimeout(_maybeShowBirthdayBanner, 1500);
+}
+function editBirthDate() { LS.set('birthDate', null); showAgeGate(); }
+
+/* ---------- Birthday banner (yearly) ---------- */
+function _maybeShowBirthdayBanner() {
+  const b = getBirthDate(); if (!b) return;
+  const now = new Date();
+  const isBirthday = now.getMonth() + 1 === b.m && now.getDate() === b.d;
+  const yearKey = 'bdayShown_' + now.getFullYear();
+  if (!isBirthday) return;
+  if (LS.get(yearKey, false)) return;
+  const age = getUserAge();
+  const view = document.getElementById('view');
+  if (!view || document.getElementById('birthday-banner')) return;
+  const html = `<div class="birthday-banner" id="birthday-banner">
+    <div class="bd-ic">🎉</div>
+    <div class="bd-body">
+      <div class="bd-t">Happy Birthday! You're ${age} today 🎂</div>
+      <div class="bd-s">${age === 18 ? '🔓 You just unlocked 18+ content. Welcome to the club!' : 'Wishing you a legendary year of great movies ahead.'}</div>
+    </div>
+    <button class="bd-x" onclick="LS.set('${yearKey}',true);document.getElementById('birthday-banner')?.remove()">✕</button>
+  </div>`;
+  // Insert at very top of view
+  const first = view.firstElementChild;
+  if (first) first.insertAdjacentHTML('beforebegin', html);
+  else view.insertAdjacentHTML('afterbegin', html);
+  try { confetti(); } catch {}
+  LS.set(yearKey, true);
+}
+
+/* ---------- Adult content filtering ---------- */
+/* Wrap tmdb() to force include_adult=false and add region-specific certifications */
+(function wrapTmdbAdult() {
+  const _orig = window.tmdb;
+  window.tmdb = async function(path, params = {}) {
+    const p = { ...params };
+    // For search/discover endpoints, respect the user's age
+    if (!isAdultAllowed() && (path.startsWith('/search/') || path.startsWith('/discover/') || path.startsWith('/trending/'))) {
+      p.include_adult = false;
+    }
+    return _orig.call(this, path, p);
+  };
+})();
+/* Also filter API responses at read-time: hide items where item.adult === true */
+function _filterAdultInPlace(arr) {
+  if (!arr || !Array.isArray(arr)) return arr;
+  if (isAdultAllowed()) return arr;
+  return arr.filter(x => !x || !x.adult);
+}
+/* Patch the card() function to show a blocked overlay for adult content on individual detail pages */
+(function patchCardForAdult() {
+  const _origCard = window.card;
+  if (typeof _origCard !== 'function') return;
+  window.card = function(item, delay = 0, rank = 0) {
+    if (item && item.adult && !isAdultAllowed()) {
+      const mt = typeOf(item);
+      return `<div style="animation:fadeUp .4s ${delay}ms both">
+        <div class="poster" style="cursor:default;position:relative">
+          <img loading="lazy" src="${posterUrl(null)}" alt="Blocked" style="opacity:.35;filter:blur(6px)" />
+          <div class="adult-block">
+            <div class="ab-ic">🔒</div>
+            <div class="ab-t">18+ Content</div>
+            <div class="ab-s">Hidden based on your age</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center">Hidden</div>
+      </div>`;
+    }
+    return _origCard.apply(this, arguments);
+  };
+})();
+/* Same for wideCard */
+(function patchWideCardForAdult() {
+  const _orig = window.wideCard;
+  if (typeof _orig !== 'function') return;
+  window.wideCard = function(item, delay = 0) {
+    if (item && item.adult && !isAdultAllowed()) {
+      return `<div class="wcard" style="animation:fadeUp .4s ${delay}ms both;position:relative;cursor:default">
+        <div class="wcard-art" style="background:var(--surface);position:relative">
+          <div class="adult-block" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px;background:rgba(3,4,8,.9)">
+            <div class="ab-ic">🔒</div>
+            <div class="ab-t">18+ Content</div>
+            <div class="ab-s">Hidden based on your age</div>
+          </div>
+        </div>
+      </div>`;
+    }
+    return _orig.apply(this, arguments);
+  };
+})();
+/* Block direct navigation to adult titles */
+(function patchNavigateForAdult() {
+  const _origNav = window.navigate;
+  if (typeof _origNav !== 'function') return;
+  window.navigate = async function(path) {
+    if (!isAdultAllowed() && typeof path === 'string') {
+      const m = path.match(/^\/(movie|tv)\/(\d+)/);
+      if (m) {
+        try {
+          const det = await window.tmdb(`/${m[1]}/${m[2]}`);
+          if (det && det.adult) {
+            toast('🔒 This content is 18+ and hidden based on your age', '🔒');
+            return;
+          }
+        } catch {}
+      }
+    }
+    return _origNav.apply(this, arguments);
+  };
+})();
+
+/* ---------- Add "Edit birth date" row to Settings page ---------- */
+(function patchSettingsForAge() {
+  const _orig = window.renderSettings;
+  if (typeof _orig !== 'function') return;
+  window.renderSettings = function(view) {
+    _orig.call(this, view);
+    setTimeout(() => {
+      const grid = view.querySelector('.settings-grid');
+      if (!grid || view.querySelector('#settings-age')) return;
+      const b = getBirthDate();
+      const age = getUserAge();
+      const d18 = _daysUntil18();
+      const html = `<div class="settings-section" id="settings-age">
+        <h3>🎂 Age &amp; Content Filter</h3>
+        <div class="settings-row">
+          <div class="sr-info">
+            <div class="sr-t">Your birth date</div>
+            <div class="sr-d">${b ? `${b.d}/${b.m}/${b.y} — <b>${age} years old</b>` : 'Not set yet'}</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="editBirthDate()">${b ? 'Change' : 'Set'}</button>
+        </div>
+        <div class="settings-row">
+          <div class="sr-info">
+            <div class="sr-t">18+ content</div>
+            <div class="sr-d">${isAdultAllowed() ? '<span style="color:var(--good);font-weight:800">✅ Unlocked</span> — you see everything.' : d18 !== null && d18 > 0 ? `🔒 Hidden. <b>Auto-unlocks in ${d18} day${d18===1?'':'s'}</b> when you turn 18.` : '🔒 Hidden. Set your birth date first.'}</div>
+          </div>
+        </div>
+      </div>`;
+      grid.insertAdjacentHTML('afterbegin', html);
+    }, 30);
+  };
+})();
+
+/* ---------- Init age gate on first visit ---------- */
+function initAgeGate() {
+  // Show only if user has never entered a birth date
+  if (!getBirthDate()) {
+    // Delay so splash finishes first
+    setTimeout(showAgeGate, 500);
+  } else {
+    // Check if it's their birthday
+    setTimeout(_maybeShowBirthdayBanner, 1500);
+  }
+}
+
+/* =================================================================
+   v4.9.5 — EPISODE DRILL-DOWN on Person page
+   Shows which specific episodes a person was in for each TV show.
+   ================================================================= */
+async function togglePersonEpisodes(personId, showId, btn) {
+  const parent = btn.closest('.pr-body');
+  if (!parent) return;
+  let list = parent.querySelector('.pr-eps-list');
+  if (list) {
+    list.remove();
+    btn.textContent = '📋 See episodes';
+    return;
+  }
+  list = document.createElement('div');
+  list.className = 'pr-eps-list';
+  list.innerHTML = '<div class="prel-loading">Loading episode details…</div>';
+  parent.appendChild(list);
+  btn.textContent = '× Hide episodes';
+  try {
+    const agg = await tmdb(`/tv/${showId}/aggregate_credits`);
+    const casts = (agg.cast || []).filter(c => c.id === +personId);
+    if (!casts.length) {
+      // Maybe the person only appears as guest / crew — try crew
+      const crews = (agg.crew || []).filter(c => c.id === +personId);
+      if (!crews.length) {
+        list.innerHTML = '<div class="prel-loading">No detailed episode data available.</div>';
+        return;
+      }
+      casts.push(...crews);
+    }
+    const person = casts[0];
+    const jobs = person.roles || person.jobs || [];
+    if (!jobs.length) {
+      list.innerHTML = '<div class="prel-loading">No specific episode data available.</div>';
+      return;
+    }
+
+    // For each role/credit_id, fetch /credit/{id} which returns the exact list of episodes
+    const roleData = await Promise.all(jobs.map(async r => {
+      try {
+        const c = await tmdb(`/credit/${r.credit_id}`);
+        const episodes = (c.media && c.media.episodes) || [];
+        // Sort by season/episode
+        episodes.sort((a, b) => (a.season_number - b.season_number) || (a.episode_number - b.episode_number));
+        return { character: r.character || r.job || 'Uncredited', count: r.episode_count || episodes.length, episodes };
+      } catch {
+        return { character: r.character || r.job || 'Uncredited', count: r.episode_count || 0, episodes: [] };
+      }
+    }));
+
+    const totalEps = person.total_episode_count || roleData.reduce((s, r) => s + (r.episodes.length || r.count || 0), 0);
+    let html = `<div class="prel-summary">
+      <span class="prel-total">📺 ${totalEps} episode${totalEps === 1 ? '' : 's'}</span>
+      <span>across ${roleData.length} role${roleData.length === 1 ? '' : 's'}</span>
+    </div>`;
+
+    // Render each role with its specific episode list
+    html += roleData.map((r, ri) => {
+      // Group episodes by season for nicer display
+      const bySeason = {};
+      r.episodes.forEach(ep => {
+        const key = ep.season_number;
+        if (!bySeason[key]) bySeason[key] = [];
+        bySeason[key].push(ep);
+      });
+      const seasonKeys = Object.keys(bySeason).map(Number).sort((a, b) => a - b);
+      const roleId = `prel-r-${ri}-${Math.random().toString(36).slice(2, 7)}`;
+
+      // Episode chips — tooltip shows the episode name + air date
+      const flatChips = r.episodes.map(ep => {
+        const tip = esc((ep.name || 'Episode ' + ep.episode_number) + (ep.air_date ? ' · ' + ep.air_date : ''));
+        return `<span class="prel-ep-chip" title="${tip}">S${ep.season_number}E${ep.episode_number}</span>`;
+      }).join('');
+
+      return `<div class="prel-role">
+        <div class="prel-role-hd">
+          <span class="prel-char">${esc(r.character)}</span>
+          <span class="prel-eps-count">${r.count || r.episodes.length} ep${(r.count || r.episodes.length) === 1 ? '' : 's'}</span>
+        </div>
+        ${r.episodes.length ? `<div class="prel-ep-list">${flatChips}</div>` : '<div class="prel-loading" style="padding:6px 0;font-size:11px">No episode list available for this role.</div>'}
+        ${seasonKeys.length > 1 ? `<div class="prel-season-summary">Across ${seasonKeys.length} seasons: ${seasonKeys.map(k => `<b>S${k}</b>(${bySeason[k].length})`).join(' · ')}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    list.innerHTML = html;
+  } catch (e) {
+    list.innerHTML = '<div class="prel-loading">Could not load episode details.</div>';
+  }
+}
+
+
+/* Patch _renderPersonSections to add "See episodes" button on TV cards */
+(function patchPersonTvEpisodes() {
+  const orig = window._renderPersonSections;
+  if (typeof orig !== 'function') return;
+  window._renderPersonSections = function(movies, tvShows, crewWork, sortItems) {
+    let html = orig.apply(this, arguments);
+    // After the HTML is rendered, we need to add the buttons. Since orig returns HTML,
+    // we can inject the button markup directly into each TV card.
+    // Easier: use a MutationObserver-friendly approach — replace `pr-eps` blocks.
+    const personId = window._personCache?.id;
+    if (!personId) return html;
+    // Inject "📋 See episodes" button right after each pr-eps div
+    html = html.replace(/(<div class="pr-eps">.*?<\/div>)/g, (match) => {
+      // We need to know which show this is for. Since we can't easily inline the id from HTML string,
+      // add a marker button that reads the parent role card's data.
+      return match + `<button class="pr-eps-btn" onclick="event.stopPropagation();_expandPersonEps(this)">📋 See episodes</button>`;
+    });
+    return html;
+  };
+})();
+
+/* When user clicks the button, walk up to the .person-role, extract the show id from onclick,
+   then call togglePersonEpisodes with personId + showId */
+function _expandPersonEps(btn) {
+  const card = btn.closest('.person-role');
+  if (!card) return;
+  const onclick = card.getAttribute('onclick') || '';
+  const m = onclick.match(/'\/tv\/(\d+)'/);
+  if (!m) return;
+  const showId = m[1];
+  const personId = window._personCache?.id;
+  if (!personId) return;
+  togglePersonEpisodes(personId, showId, btn);
+}
+
 setTimeout(() => document.getElementById('splash').classList.add('hidden'), 350);
 setTimeout(() => { const s = document.getElementById('splash'); if (s) s.remove(); }, 700);
 
@@ -9302,6 +10351,7 @@ render();
 initScrollUI();
 setTimeout(_bindV47Dynamics, 500);
 initOnboarding();
+initAgeGate();
 
 // Stop all playback on page unload / tab switch
 // Only stop playback when actually closing/reloading the page, NOT on tab switches.
