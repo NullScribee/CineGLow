@@ -3164,46 +3164,263 @@ function handleSub(e) {
   r.readAsText(f);
 }
 
-/* === DATA EXPORT/IMPORT === */
+/* === DATA EXPORT/IMPORT (v4.9.7 — rewritten, auto-scoops ALL cg_* keys) === */
+function _collectAllData() {
+  // Auto-scoop every `cg_` key from localStorage — future-proof, no need to list keys
+  const data = { app: 'CineGlow', version: '4.9', exported: new Date().toISOString(), keys: {} };
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k || !k.startsWith('cg_')) continue;
+    const shortKey = k.slice(3); // strip 'cg_' prefix
+    try { data.keys[shortKey] = JSON.parse(localStorage.getItem(k)); }
+    catch { data.keys[shortKey] = localStorage.getItem(k); }
+  }
+  // Summary for the UI
+  const wl = data.keys.watchlist || [];
+  const h = data.keys.history || [];
+  const wi = data.keys.watchedItems || {};
+  const pls = data.keys.collections || {};
+  const ratings = data.keys.ratings || {};
+  const diary = data.keys.diaryNotes || {};
+  data._summary = {
+    watchlist: Array.isArray(wl) ? wl.length : 0,
+    history: Array.isArray(h) ? h.length : 0,
+    watched: Object.keys(wi).length,
+    playlists: Object.keys(pls).filter(n => n !== 'Watchlist').length,
+    ratings: Object.keys(ratings).length,
+    diaryNotes: Object.keys(diary).length,
+    totalKeys: Object.keys(data.keys).length,
+  };
+  return data;
+}
 function openDataExport() {
   closeAllDD();
-  const data = { version: '4.0', exported: new Date().toISOString(), watchlist: LS.get('watchlist', []), history: LS.get('history', []), collections: LS.get('collections', {}), ratings: LS.get('ratings', {}), userReviews: LS.get('userReviews', {}), playlists: LS.get('playlists', {}), achievements: LS.get('achievements', []), theme: LS.get('theme', 'dark'), accent: LS.get('accent', null), presets: LS.get('presets', {}) };
+  const data = _collectAllData();
   const json = JSON.stringify(data, null, 2);
-  document.getElementById('modal-root').innerHTML = `<div class="modal-back" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h2 class="modal-title">💾 Export Data</h2><button class="modal-close" onclick="closeModal()">✕</button></div><p style="color:var(--text-dim);margin-bottom:14px;font-size:12.5px">Backup all your CineGlow data.</p><div style="display:flex;gap:7px;margin-bottom:14px"><button class="btn btn-primary" onclick="dlExport()">📥 Download</button><button class="btn btn-secondary" onclick="copyExport()">📋 Copy</button></div><textarea readonly style="width:100%;height:180px;padding:11px;border-radius:9px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:monospace;font-size:10.5px;resize:none">${esc(json).slice(0, 5000)}${json.length > 5000 ? '...[truncated]' : ''}</textarea></div></div>`;
   window._expData = json;
+  const s = data._summary;
+  const bytes = new Blob([json]).size;
+  const sizeStr = bytes > 1024 ? (bytes / 1024).toFixed(1) + ' KB' : bytes + ' B';
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-back" onclick="if(event.target===this)closeModal()">
+      <div class="modal" style="max-width:520px">
+        <div class="modal-head">
+          <h2 class="modal-title">💾 Export Data</h2>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <p style="color:var(--text-dim);margin-bottom:14px;font-size:12.5px">A full backup of everything CineGlow stores on this device.</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+          <div style="padding:11px;border-radius:10px;background:var(--surface);border:1px solid var(--border);text-align:center">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:20px;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent">${s.watchlist}</div>
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-top:3px">Watchlist</div>
+          </div>
+          <div style="padding:11px;border-radius:10px;background:var(--surface);border:1px solid var(--border);text-align:center">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:20px;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent">${s.watched}</div>
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-top:3px">Watched</div>
+          </div>
+          <div style="padding:11px;border-radius:10px;background:var(--surface);border:1px solid var(--border);text-align:center">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:20px;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent">${s.history}</div>
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-top:3px">History</div>
+          </div>
+          <div style="padding:11px;border-radius:10px;background:var(--surface);border:1px solid var(--border);text-align:center">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:20px;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent">${s.playlists}</div>
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-top:3px">Playlists</div>
+          </div>
+          <div style="padding:11px;border-radius:10px;background:var(--surface);border:1px solid var(--border);text-align:center">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:20px;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent">${s.ratings}</div>
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-top:3px">Ratings</div>
+          </div>
+          <div style="padding:11px;border-radius:10px;background:var(--surface);border:1px solid var(--border);text-align:center">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:20px;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent">${s.diaryNotes}</div>
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-top:3px">Diary Notes</div>
+          </div>
+        </div>
+        <div style="padding:10px 12px;border-radius:10px;background:var(--accent-glow);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);margin-bottom:14px;font-size:11.5px;color:var(--text-dim)">
+          <b style="color:var(--accent)">✓ ${s.totalKeys} data types</b> · Total size: <b style="color:var(--text)">${sizeStr}</b>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <button class="btn btn-primary" style="flex:1;min-height:44px" onclick="dlExport()">📥 Download JSON</button>
+          <button class="btn btn-secondary" style="min-height:44px" onclick="copyExport()">📋 Copy</button>
+        </div>
+        <details style="margin-top:8px">
+          <summary style="cursor:pointer;color:var(--text-muted);font-size:11.5px;padding:6px 0">Preview the JSON</summary>
+          <textarea readonly style="width:100%;height:180px;padding:10px;border-radius:9px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-family:monospace;font-size:10.5px;resize:vertical;margin-top:6px">${esc(json.length > 5000 ? json.slice(0, 5000) + '\n\n… truncated (' + (json.length - 5000) + ' more chars). Use Download for the full file.' : json)}</textarea>
+        </details>
+      </div>
+    </div>`;
 }
 function dlExport() {
-  const b = new Blob([window._expData], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `cineglow-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click();
-  toast('Downloaded', '💾');
+  try {
+    const b = new Blob([window._expData], { type: 'application/json' });
+    const url = URL.createObjectURL(b);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cineglow-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    toast('Backup downloaded ✓', '💾');
+  } catch (e) {
+    toast('Download failed — try Copy instead', '❌');
+  }
 }
-function copyExport() { navigator.clipboard.writeText(window._expData); toast('Copied', '📋'); }
+function copyExport() {
+  if (!window._expData) { toast('Nothing to copy', '❌'); return; }
+  const doFallback = () => {
+    // Fallback for browsers without clipboard API (older Safari, sandboxed iframes)
+    const ta = document.createElement('textarea');
+    ta.value = window._expData;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); toast('Copied to clipboard ✓', '📋'); }
+    catch { toast('Copy failed — use Download instead', '❌'); }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(window._expData).then(() => toast('Copied to clipboard ✓', '📋')).catch(doFallback);
+  } else {
+    doFallback();
+  }
+}
 function openDataImport() {
   closeAllDD();
-  document.getElementById('modal-root').innerHTML = `<div class="modal-back" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h2 class="modal-title">📥 Import Data</h2><button class="modal-close" onclick="closeModal()">✕</button></div><p style="color:var(--text-dim);margin-bottom:14px;font-size:12.5px">Restore from CineGlow JSON backup.</p><input type="file" accept=".json" onchange="handleImp(e)" style="width:100%;padding:11px;border-radius:9px;background:var(--surface);border:1px dashed var(--border-strong);color:var(--text-dim);cursor:pointer;margin-bottom:11px"><textarea id="imp-text" class="textarea" style="height:110px;margin-bottom:11px" placeholder='Or paste JSON data…'></textarea><button class="btn btn-primary" style="width:100%" onclick="impFromText()">Import from Text</button><div id="imp-out" style="margin-top:11px"></div></div></div>`;
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-back" onclick="if(event.target===this)closeModal()">
+      <div class="modal" style="max-width:520px">
+        <div class="modal-head">
+          <h2 class="modal-title">📥 Import Data</h2>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <p style="color:var(--text-dim);margin-bottom:14px;font-size:12.5px">Restore from a CineGlow backup file, or paste the JSON directly.</p>
+        <div style="margin-bottom:16px">
+          <label for="imp-file" style="display:block;padding:22px 14px;border-radius:12px;background:var(--surface);border:2px dashed var(--border-strong);cursor:pointer;text-align:center;transition:border-color .15s,background-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border-strong)'">
+            <div style="font-size:28px;margin-bottom:6px">📁</div>
+            <div style="font-weight:800;font-size:13.5px;margin-bottom:2px">Click to choose backup file</div>
+            <div style="font-size:11px;color:var(--text-muted)">Or drag & drop a .json here</div>
+          </label>
+          <input type="file" id="imp-file" accept=".json,application/json" style="display:none" onchange="handleImp(event)">
+        </div>
+        <details>
+          <summary style="cursor:pointer;color:var(--text-muted);font-size:12px;padding:6px 0;margin-bottom:8px">Or paste JSON manually</summary>
+          <textarea id="imp-text" class="textarea" style="height:120px;margin-bottom:11px;font-family:monospace;font-size:11px" placeholder="Paste the JSON contents of your backup file here…"></textarea>
+          <button class="btn btn-primary" style="width:100%;min-height:44px" onclick="impFromText()">Import from Text</button>
+        </details>
+        <div style="margin-top:14px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--mid) 12%,transparent);border:1px solid color-mix(in srgb,var(--mid) 30%,transparent);font-size:11.5px;color:var(--text-dim)">
+          <b style="color:var(--mid)">⚠️ Warning:</b> Import will <b>merge</b> the backup into your current data. If a key exists in both, the backup wins.
+        </div>
+        <div id="imp-out" style="margin-top:14px"></div>
+      </div>
+    </div>`;
+  // Drag & drop
+  const label = document.querySelector('label[for="imp-file"]');
+  if (label) {
+    label.addEventListener('dragover', e => { e.preventDefault(); label.style.borderColor = 'var(--accent)'; label.style.background = 'var(--accent-glow)'; });
+    label.addEventListener('dragleave', () => { label.style.borderColor = 'var(--border-strong)'; label.style.background = 'var(--surface)'; });
+    label.addEventListener('drop', e => {
+      e.preventDefault();
+      label.style.borderColor = 'var(--border-strong)'; label.style.background = 'var(--surface)';
+      const f = e.dataTransfer.files[0];
+      if (f) _readImportFile(f);
+    });
+  }
 }
 function handleImp(e) {
-  const f = e.target.files[0]; if (!f) return;
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  _readImportFile(f);
+}
+function _readImportFile(f) {
+  const out = document.getElementById('imp-out');
+  if (f.size > 5 * 1024 * 1024) {
+    if (out) out.innerHTML = `<div style="padding:11px;border-radius:9px;background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad);font-size:12px;font-weight:700">❌ File too large (${(f.size/1024/1024).toFixed(1)} MB). Max 5 MB.</div>`;
+    return;
+  }
+  if (out) out.innerHTML = `<div style="padding:11px;border-radius:9px;background:var(--surface);color:var(--text-dim);font-size:12px">📂 Reading <b style="color:var(--text)">${esc(f.name)}</b>…</div>`;
   const r = new FileReader();
-  r.onload = ev => { try { applyImp(JSON.parse(ev.target.result)); } catch { document.getElementById('imp-out').innerHTML = '<div style="color:var(--accent);font-size:11.5px">❌ Invalid JSON</div>'; } };
+  r.onload = ev => {
+    try { applyImp(JSON.parse(ev.target.result)); }
+    catch (err) {
+      if (out) out.innerHTML = `<div style="padding:11px;border-radius:9px;background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad);font-size:12px;font-weight:700">❌ Invalid JSON: ${esc(err.message)}</div>`;
+    }
+  };
+  r.onerror = () => {
+    if (out) out.innerHTML = `<div style="padding:11px;border-radius:9px;background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad);font-size:12px;font-weight:700">❌ Could not read file</div>`;
+  };
   r.readAsText(f);
 }
-function impFromText() { try { applyImp(JSON.parse(document.getElementById('imp-text').value)); } catch { document.getElementById('imp-out').innerHTML = '<div style="color:var(--accent);font-size:11.5px">❌ Invalid JSON</div>'; } }
+function impFromText() {
+  const txt = document.getElementById('imp-text').value.trim();
+  const out = document.getElementById('imp-out');
+  if (!txt) { if (out) out.innerHTML = `<div style="padding:11px;border-radius:9px;background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad);font-size:12px;font-weight:700">❌ Textarea is empty</div>`; return; }
+  try { applyImp(JSON.parse(txt)); }
+  catch (err) {
+    if (out) out.innerHTML = `<div style="padding:11px;border-radius:9px;background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad);font-size:12px;font-weight:700">❌ Invalid JSON: ${esc(err.message)}</div>`;
+  }
+}
 function applyImp(d) {
-  let n = 0;
-  if (d.watchlist) { LS.set('watchlist', d.watchlist); n += d.watchlist.length; }
-  if (d.history) { LS.set('history', d.history); n += d.history.length; }
-  if (d.collections) LS.set('collections', d.collections);
-  if (d.ratings) LS.set('ratings', d.ratings);
-  if (d.userReviews) LS.set('userReviews', d.userReviews);
-  if (d.playlists) LS.set('playlists', d.playlists);
-  if (d.achievements) LS.set('achievements', d.achievements);
-  if (d.presets) LS.set('presets', d.presets);
-  if (d.theme) setTheme(d.theme);
-  if (d.accent) setAccentRaw(d.accent.a, d.accent.a2);
-  toast(`Imported ${n} items`, '✅');
-  document.getElementById('imp-out').innerHTML = `<div style="padding:11px;border-radius:9px;background:var(--accent-glow);color:var(--accent);font-size:12px;font-weight:600">✅ ${n} items · Refreshing…</div>`;
-  setTimeout(() => { closeModal(); render(); }, 1200);
+  const out = document.getElementById('imp-out');
+  if (!d || typeof d !== 'object') {
+    if (out) out.innerHTML = `<div style="padding:11px;border-radius:9px;background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad);font-size:12px;font-weight:700">❌ Not a valid CineGlow backup — expected a JSON object.</div>`;
+    return;
+  }
+  let restored = 0;
+  const restoredKeys = [];
+  // NEW format (v4.9.7+): { app, version, keys: { watchlist: [...], ... } }
+  if (d.keys && typeof d.keys === 'object') {
+    for (const [k, v] of Object.entries(d.keys)) {
+      try {
+        LS.set(k, v);
+        restoredKeys.push(k);
+        if (Array.isArray(v)) restored += v.length;
+        else if (v && typeof v === 'object') restored += Object.keys(v).length;
+        else restored += 1;
+      } catch {}
+    }
+  } else {
+    // LEGACY format (v4.0 – v4.9): flat top-level keys
+    const legacyMap = {
+      watchlist: 'watchlist', history: 'history', collections: 'collections',
+      ratings: 'ratings', userReviews: 'userReviews', playlists: 'playlists',
+      achievements: 'achievements', presets: 'presets', theme: 'theme', accent: 'accent',
+      // Older exports may have already had these
+      watchedItems: 'watchedItems', watchedEps: 'watchedEps', progress: 'progress',
+      pinned: 'pinned', streak: 'streak', diaryNotes: 'diaryNotes', watchedWith: 'watchedWith',
+      lastEpisodes: 'lastEpisodes', resumeTimes: 'resumeTimes', customTags: 'customTags',
+      searchHistory: 'searchHistory', birthDate: 'birthDate', lang: 'lang',
+      favoriteServer: 'favoriteServer', serverHealth: 'serverHealth', playbackSpeed: 'playbackSpeed',
+    };
+    for (const [srcKey, lsKey] of Object.entries(legacyMap)) {
+      if (d[srcKey] !== undefined && d[srcKey] !== null) {
+        try {
+          LS.set(lsKey, d[srcKey]);
+          restoredKeys.push(lsKey);
+          const v = d[srcKey];
+          if (Array.isArray(v)) restored += v.length;
+          else if (v && typeof v === 'object') restored += Object.keys(v).length;
+          else restored += 1;
+        } catch {}
+      }
+    }
+  }
+  if (!restoredKeys.length) {
+    if (out) out.innerHTML = `<div style="padding:11px;border-radius:9px;background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad);font-size:12px;font-weight:700">❌ No known CineGlow data found in this file.</div>`;
+    return;
+  }
+  // Clear in-memory TMDB cache so a fresh render picks up new data
+  try { if (window.CACHE && window.CACHE.clear) window.CACHE.clear(); } catch {}
+  // Apply theme/accent if included
+  const themeKey = d.keys ? d.keys.theme : d.theme;
+  const accentKey = d.keys ? d.keys.accent : d.accent;
+  try { if (themeKey && typeof setTheme === 'function') setTheme(themeKey); } catch {}
+  try { if (accentKey && accentKey.a && typeof setAccentRaw === 'function') setAccentRaw(accentKey.a, accentKey.a2); } catch {}
+  if (out) out.innerHTML = `<div style="padding:12px;border-radius:10px;background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good);font-size:13px;font-weight:700;border:1px solid color-mix(in srgb,var(--good) 35%,transparent)">
+    ✅ Imported <b style="font-size:15px">${restored}</b> items across <b>${restoredKeys.length}</b> data types<br>
+    <span style="font-size:11px;color:var(--text-dim);font-weight:500;display:inline-block;margin-top:6px">Refreshing…</span>
+  </div>`;
+  toast(`Imported ${restored} items ✓`, '✅');
+  setTimeout(() => { closeModal(); render(); }, 1400);
 }
 
 /* Features hub removed in v4.7 (dead code cleanup) */
