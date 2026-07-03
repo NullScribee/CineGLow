@@ -6728,11 +6728,26 @@ function _libApplyFilters(items) {
 
 /* ---- WATCHED tab ---- */
 function renderLibraryWatched() {
+  // v4.9.8 — Read metadata directly from watchedItems (self-contained now).
+  // Fall back to history lookup for legacy entries that only have { ts },
+  // and backfill their metadata so they'll survive future history deletes.
+  _backfillWatchedFromHistory();
   const w = getWatchedItems();
-  // Rebuild items from history + watched key intersection (history has metadata)
   const historyMap = new Map();
   getHistory().forEach(h => historyMap.set((h.media_type || (h.title ? 'movie' : 'tv')) + '_' + h.id, h));
-  const items = Object.keys(w).map(k => historyMap.get(k)).filter(Boolean);
+  const items = Object.entries(w).map(([k, v]) => {
+    // Modern entry — has full metadata
+    if (v && v.title) return v;
+    // Legacy entry — only has { ts }. Try to enrich from history.
+    const h = historyMap.get(k);
+    if (h) return { ...h, ts: (v && v.ts) || h.ts };
+    // Truly orphaned entry (history was deleted before we added self-contained storage).
+    // Still render a placeholder so user can see it, click it, and re-enrich.
+    const [mt, id] = k.split('_');
+    return { id: +id, media_type: mt, title: 'Watched title #' + id, poster_path: null, ts: (v && v.ts) || 0, vote_average: 0 };
+  });
+  // Sort by ts (most recent first) as default order
+  items.sort((a, b) => (b.ts || 0) - (a.ts || 0));
   const filtered = _libApplyFilters(items);
   const extra = items.length ? `<div style="flex:1"></div><button class="btn btn-secondary btn-sm" onclick="libSurpriseFromWatched()">🎲 Watch again</button><button class="btn btn-ghost btn-sm" onclick="libClearWatched()">🗑️ Clear all</button>` : '';
   const toolbar = _libToolbar('🔍 Search watched…', true, extra);
@@ -6747,9 +6762,14 @@ function libClearWatched() {
   renderLibraryContent();
 }
 function libSurpriseFromWatched() {
+  // v4.9.8 — Prefer self-contained metadata; only fall back to history for legacy entries
+  _backfillWatchedFromHistory();
   const w = getWatchedItems();
   const hMap = new Map(); getHistory().forEach(h => hMap.set((h.media_type || 'movie') + '_' + h.id, h));
-  const pool = Object.keys(w).map(k => hMap.get(k)).filter(Boolean);
+  const pool = Object.entries(w).map(([k, v]) => {
+    if (v && v.id && v.media_type) return v;
+    return hMap.get(k) || null;
+  }).filter(Boolean);
   if (!pool.length) return toast('Nothing to pick from', 'ℹ️');
   const pick = pool[Math.floor(Math.random() * pool.length)];
   navigate(`/${pick.media_type}/${pick.id}`);
@@ -7790,10 +7810,59 @@ document.addEventListener('keydown', e => {
 function _wKey(id, mt) { return mt + '_' + id; }
 function getWatchedItems() { return LS.get('watchedItems', {}); }
 function isItemWatched(id, mt) { return !!getWatchedItems()[_wKey(id, mt)]; }
+/* v4.9.8 — One-time enrichment: any legacy watchedItems entry without a title
+   gets its metadata filled in from history. Runs on Library load. */
+function _backfillWatchedFromHistory() {
+  const w = getWatchedItems();
+  const keys = Object.keys(w);
+  if (!keys.length) return;
+  const hist = getHistory();
+  if (!hist.length) return;
+  const historyMap = new Map();
+  hist.forEach(h => historyMap.set((h.media_type || (h.title ? 'movie' : 'tv')) + '_' + h.id, h));
+  let changed = false;
+  for (const k of keys) {
+    const v = w[k];
+    if (v && v.title) continue; // already enriched
+    const h = historyMap.get(k);
+    if (!h) continue;
+    const mt = h.media_type || (h.title ? 'movie' : 'tv');
+    w[k] = {
+      ts: (v && v.ts) || h.ts || Date.now(),
+      id: +h.id, media_type: mt,
+      title: h.title || h.name || 'Untitled',
+      poster_path: h.poster_path || null,
+      vote_average: h.vote_average || 0,
+      release_date: h.release_date || h.first_air_date || '',
+      genres: h.genres || [],
+      original_language: h.original_language || '',
+    };
+    changed = true;
+  }
+  if (changed) LS.set('watchedItems', w);
+}
 function setItemWatched(id, mt, on, item) {
   const w = getWatchedItems();
   const k = _wKey(id, mt);
-  if (on) w[k] = { ts: Date.now() }; else delete w[k];
+  if (on) {
+    // v4.9.8 — Store the FULL item metadata in watchedItems so it survives
+    // even when the user deletes their history. Previously only { ts } was
+    // stored and Library depended on history to look up poster/title, which
+    // meant clearing history wiped the Watched grid.
+    w[k] = {
+      ts: Date.now(),
+      id: +id,
+      media_type: mt,
+      title: item ? titleOf(item) : (w[k] && w[k].title) || 'Untitled',
+      poster_path: item ? item.poster_path : (w[k] && w[k].poster_path) || null,
+      vote_average: item ? (item.vote_average || 0) : ((w[k] && w[k].vote_average) || 0),
+      release_date: item ? (item.release_date || item.first_air_date || '') : ((w[k] && w[k].release_date) || ''),
+      genres: item ? (item.genres || []) : ((w[k] && w[k].genres) || []),
+      original_language: item ? (item.original_language || '') : ((w[k] && w[k].original_language) || ''),
+    };
+  } else {
+    delete w[k];
+  }
   LS.set('watchedItems', w);
   // Also: mark in history with 100% progress + a streak day
   if (on && item) {
@@ -10563,6 +10632,10 @@ function _expandPersonEps(btn) {
 
 setTimeout(() => document.getElementById('splash').classList.add('hidden'), 350);
 setTimeout(() => { const s = document.getElementById('splash'); if (s) s.remove(); }, 700);
+
+// v4.9.8 — Backfill watched metadata from history at boot so any legacy
+// entries get enriched before the user has a chance to clear history again.
+try { _backfillWatchedFromHistory(); } catch {}
 
 render();
 initScrollUI();
