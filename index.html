@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://api.themoviedb.org" crossorigin>
 <link rel="dns-prefetch" href="https://image.tmdb.org">
 <link rel="dns-prefetch" href="https://api.themoviedb.org">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    CINEGLOW v4.0 — BRAND SYSTEM + SMOOTH + 30+ FEATURES
@@ -2187,6 +2187,178 @@ body, .card, .navbar, .surface, .btn, .server-btn, .tab-btn, .poster, .mobile-bo
 }
 .pr-eps-list .prel-season-summary b { color: var(--accent); font-family: var(--font-display); }
 
+/* =================================================================
+   v4.9.16 — CONTENT ADVISORY PANEL
+   ================================================================= */
+.cadv {
+  margin: 22px clamp(12px,2.4vw,36px) 26px;
+  padding: 22px 24px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--bg-2) 96%, var(--accent)), var(--bg-2));
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--elev-1);
+}
+.cadv-head {
+  display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px;
+}
+.cadv-head .cadv-bars {
+  display: inline-flex; align-items: flex-end; gap: 3px; flex-shrink: 0; padding-top: 4px;
+}
+.cadv-head .cadv-bar {
+  width: 8px; border-radius: 2px;
+}
+.cadv-head .cadv-title-wrap { flex: 1; min-width: 0; }
+.cadv-head .cadv-title {
+  font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1.2;
+}
+.cadv-head .cadv-sub {
+  font-size: 12.5px; color: var(--text-dim); margin-top: 3px;
+}
+.cadv-head .cadv-overall {
+  padding: 6px 14px; border-radius: 999px; font-family: var(--font-display); font-weight: 800; font-size: 12px;
+  letter-spacing: .05em; flex-shrink: 0;
+}
+.cadv-head .cadv-overall.sev-none { background: color-mix(in srgb, var(--good) 15%, transparent); color: var(--good); border: 1px solid color-mix(in srgb, var(--good) 40%, transparent); }
+.cadv-head .cadv-overall.sev-mild { background: color-mix(in srgb, #facc15 15%, transparent); color: #facc15; border: 1px solid color-mix(in srgb, #facc15 40%, transparent); }
+.cadv-head .cadv-overall.sev-moderate { background: color-mix(in srgb, #f97316 15%, transparent); color: #f97316; border: 1px solid color-mix(in srgb, #f97316 40%, transparent); }
+.cadv-head .cadv-overall.sev-severe { background: color-mix(in srgb, var(--bad) 15%, transparent); color: var(--bad); border: 1px solid color-mix(in srgb, var(--bad) 40%, transparent); }
+.cadv-head .cadv-toggle {
+  background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;
+  padding: 4px 8px; border-radius: 8px; transition: transform .3s, color .15s;
+  flex-shrink: 0;
+}
+.cadv-head .cadv-toggle:hover { color: var(--accent); }
+.cadv.collapsed .cadv-toggle { transform: rotate(180deg); }
+
+.cadv-cert-note {
+  font-size: 12.5px; color: var(--text-dim); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 4px;
+}
+.cadv-cert-note::before { content: '⚠️'; font-size: 14px; }
+
+.cadv-list { display: flex; flex-direction: column; gap: 10px; transition: max-height .35s, opacity .25s; }
+.cadv.collapsed .cadv-list, .cadv.collapsed .cadv-cert-note { display: none; }
+
+.cadv-row {
+  display: grid; grid-template-columns: 44px 1fr auto 24px;
+  align-items: center; gap: 14px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  transition: border-color .15s, transform .12s;
+}
+.cadv-row:hover { border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.cadv-row .cr-ic {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+  background: var(--surface-2); border: 1px solid var(--border);
+}
+.cadv-row .cr-body { min-width: 0; }
+.cadv-row .cr-title {
+  font-weight: 800; font-size: 14.5px; margin-bottom: 6px;
+}
+.cadv-row .cr-bar {
+  width: 100%; max-width: 100%; height: 4px; border-radius: 4px;
+  background: var(--border-strong); overflow: hidden;
+}
+.cadv-row .cr-bar > i {
+  display: block; height: 100%; border-radius: 4px;
+  transition: width .5s cubic-bezier(.22,1,.36,1);
+}
+.cadv-row .cr-badge {
+  font-family: var(--font-display); font-weight: 800; font-size: 12.5px;
+  letter-spacing: .06em;
+}
+.cadv-row .cr-toggle {
+  background: transparent; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer;
+  padding: 0; border-radius: 6px; transition: transform .3s, color .15s;
+}
+.cadv-row .cr-toggle:hover { color: var(--accent); }
+.cadv-row.expanded .cr-toggle { transform: rotate(180deg); }
+.cadv-row .cr-detail {
+  grid-column: 1 / -1; padding-top: 10px; margin-top: 6px;
+  border-top: 1px dashed var(--border);
+  font-size: 12.5px; color: var(--text-dim); line-height: 1.6;
+  display: none;
+}
+.cadv-row.expanded .cr-detail { display: block; }
+
+/* Severity colors */
+.sev-none    .cr-bar > i { background: var(--good); width: 5%; }
+.sev-mild    .cr-bar > i { background: #facc15;   width: 35%; }
+.sev-moderate .cr-bar > i { background: #f97316; width: 65%; }
+.sev-severe  .cr-bar > i { background: var(--bad); width: 100%; }
+.sev-none    .cr-badge { color: var(--good); }
+.sev-mild    .cr-badge { color: #facc15; }
+.sev-moderate .cr-badge { color: #f97316; }
+.sev-severe  .cr-badge { color: var(--bad); }
+
+.cadv-foot {
+  text-align: center; margin-top: 16px;
+  font-size: 11px; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.cadv-foot::before { content: '⚠️'; }
+
+@media (max-width: 640px) {
+  .cadv { padding: 18px 16px; margin: 16px 10px 22px; }
+  .cadv-row { grid-template-columns: 40px 1fr 24px; padding: 12px 14px; }
+  .cadv-row .cr-badge {
+    grid-column: 2; margin-top: 4px; font-size: 11.5px;
+    justify-self: end; align-self: end;
+  }
+}
+
+/* =================================================================
+   v4.9.16 — CUSTOM ACCENT + FONT PICKER
+   ================================================================= */
+.custom-accent-row {
+  display: flex; align-items: center; gap: 12px; margin-top: 12px;
+  padding: 12px; border-radius: 12px;
+  background: var(--bg-2); border: 1px solid var(--border);
+}
+.custom-accent-row label {
+  font-size: 12px; font-weight: 700; color: var(--text-dim); flex-shrink: 0;
+}
+.custom-accent-row input[type="color"] {
+  width: 42px; height: 42px; border: none; border-radius: 10px;
+  background: transparent; cursor: pointer; padding: 0;
+}
+.custom-accent-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.custom-accent-row input[type="color"]::-webkit-color-swatch { border: 1px solid var(--border-strong); border-radius: 8px; }
+.custom-accent-row .cap-preview {
+  flex: 1; min-width: 0; padding: 10px 14px; border-radius: 10px;
+  background: var(--accent-glow); color: var(--accent);
+  font-family: var(--font-display); font-weight: 800; font-size: 13px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  text-align: center;
+}
+.custom-accent-row .cap-btn {
+  padding: 10px 14px; border-radius: 9px; background: var(--brand-grad); color: #000;
+  font-weight: 800; font-family: inherit; font-size: 12px; border: none; cursor: pointer;
+  min-height: 42px;
+}
+
+/* Font picker */
+.font-picker-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 8px;
+}
+.font-chip {
+  padding: 14px 10px; border-radius: 10px;
+  background: var(--bg-2); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer; text-align: center;
+  transition: border-color .15s, transform .12s;
+  font-size: 15px; font-weight: 700; min-height: 52px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.font-chip:hover { border-color: var(--accent); transform: translateY(-1px); }
+.font-chip.active { border-color: var(--accent); background: var(--accent-glow); box-shadow: 0 3px 12px var(--accent-glow); }
+.font-chip .fc-name { font-size: 13px; font-weight: 800; }
+.font-chip .fc-sample { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+
 </style>
 </head>
 <body data-theme="dark">
@@ -2495,6 +2667,62 @@ function setAccent(el) {
   LS.set('accent', { a: el.dataset.a, a2: el.dataset.a2 });
   toast('Accent updated', '🎨');
   event.stopPropagation();
+}
+/* v4.9.16 — Custom accent color from color-picker */
+function setCustomAccent(hex) {
+  if (!hex) return;
+  // Derive a complementary color for accent-2 (shift hue by ~180°)
+  const c = hex.replace('#','');
+  const r = parseInt(c.substr(0,2), 16), g = parseInt(c.substr(2,2), 16), b = parseInt(c.substr(4,2), 16);
+  // simple complementary: invert
+  const inv = '#' + ((1 << 24) + ((255 - r) << 16) + ((255 - g) << 8) + (255 - b)).toString(16).slice(1).padStart(6, '0');
+  setAccentRaw(hex, inv);
+  LS.set('accent', { a: hex, a2: inv });
+  toast('Custom accent set', '🎨');
+}
+
+/* v4.9.16 — Font system (7 fonts) */
+const FONT_OPTIONS = [
+  { key: 'grotesk',  name: 'Cyber (Grotesk)',    display: "'Space Grotesk', system-ui, sans-serif", body: "'Plus Jakarta Sans', system-ui, sans-serif" },
+  { key: 'inter',    name: 'Modern (Inter)',     display: "'Inter', system-ui, sans-serif",         body: "'Inter', system-ui, sans-serif" },
+  { key: 'poppins',  name: 'Rounded (Poppins)',  display: "'Poppins', system-ui, sans-serif",       body: "'Poppins', system-ui, sans-serif" },
+  { key: 'manrope',  name: 'Clean (Manrope)',    display: "'Manrope', system-ui, sans-serif",       body: "'Manrope', system-ui, sans-serif" },
+  { key: 'dmsans',   name: 'Sleek (DM Sans)',    display: "'DM Sans', system-ui, sans-serif",       body: "'DM Sans', system-ui, sans-serif" },
+  { key: 'outfit',   name: 'Fresh (Outfit)',     display: "'Outfit', system-ui, sans-serif",        body: "'Outfit', system-ui, sans-serif" },
+  { key: 'sora',     name: 'Bold (Sora)',        display: "'Sora', system-ui, sans-serif",          body: "'Sora', system-ui, sans-serif" },
+  { key: 'cairo',    name: 'Arabic (Cairo)',     display: "'Cairo', system-ui, sans-serif",         body: "'Cairo', system-ui, sans-serif" },
+  { key: 'tajawal',  name: 'Arabic (Tajawal)',   display: "'Tajawal', system-ui, sans-serif",       body: "'Tajawal', system-ui, sans-serif" },
+  { key: 'rubik',    name: 'Multi (Rubik)',      display: "'Rubik', system-ui, sans-serif",         body: "'Rubik', system-ui, sans-serif" },
+];
+function currentFont() { return LS.get('fontKey', 'grotesk'); }
+function applyFont(key) {
+  const f = FONT_OPTIONS.find(x => x.key === key) || FONT_OPTIONS[0];
+  document.documentElement.style.setProperty('--font-display', f.display);
+  document.documentElement.style.setProperty('--font-body', f.body);
+  LS.set('fontKey', f.key);
+}
+(function initFont() { try { applyFont(currentFont()); } catch {} })();
+function setFont(key) {
+  applyFont(key);
+  toast('Font: ' + (FONT_OPTIONS.find(x => x.key === key) || {}).name, '🔤');
+  try { if (location.hash.includes('/settings')) renderSettings(document.getElementById('view')); } catch {}
+}
+
+/* v4.9.16 — Adult content toggle (bypass age filter for 18+ users) */
+function isAdultContentAllowed() {
+  // Manual override (set true to force allow, false to force block)
+  const manual = LS.get('adultManual', null);
+  if (manual === true) return true;
+  if (manual === false) return false;
+  // Otherwise fall back to the age gate (isAdultAllowed checks birth date >= 18)
+  return isAdultAllowed();
+}
+function setAdultManual(val) {
+  if (val === null) LS.remove ? LS.remove('adultManual') : localStorage.removeItem('cg_adultManual');
+  else LS.set('adultManual', val);
+  toast(val === true ? '🔓 18+ content enabled' : val === false ? '🔒 18+ content hidden' : 'Reset to age-based', val === true ? '🔓' : '🔒');
+  try { if (location.hash.includes('/settings')) renderSettings(document.getElementById('view')); } catch {}
+  try { render(); } catch {}
 }
 let autoThemeOn = LS.get('autoTheme', false);
 function toggleAutoTheme() {
@@ -5264,14 +5492,22 @@ async function renderDetail(view, mt, id) {
   // Display cast = aggregate for TV (with episode counts), normal for movies
   const displayCast = (mt === 'tv' && aggCast.length) ? aggCast.slice(0, 24) : cast;
   const displayAllCast = (mt === 'tv' && aggCast.length) ? aggCast : allCast;
-  // Crew grouped by department
+  // v4.9.16 — Merge crew members by person id so someone who is both Director + Writer + Producer
+  // shows up as ONE card labeled "Director, Writer, Producer" instead of three separate ones.
+  const mergedCrew = mergeCrewByPerson(crew);
+  // Group MERGED crew by primary department (first job's department)
   const crewByDept = {};
-  crew.forEach(c => { const d = c.department || 'Other'; (crewByDept[d] = crewByDept[d] || []).push(c); });
+  mergedCrew.forEach(c => {
+    const d = (c.departments && c.departments[0]) || c.department || 'Other';
+    (crewByDept[d] = crewByDept[d] || []).push(c);
+  });
   const deptOrder = ['Directing', 'Writing', 'Production', 'Camera', 'Editing', 'Sound', 'Art', 'Costume & Make-Up', 'Visual Effects', 'Crew'];
   const sortedDepts = Object.keys(crewByDept).sort((a, b) => {
     const ia = deptOrder.indexOf(a), ib = deptOrder.indexOf(b);
     return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
   });
+  // Content advisory (v4.9.16)
+  const contentAdv = buildContentAdvisory(det, cert, kws, mt);
 
   // New feature data
   const trivia = buildTrivia(det, mt, cast, crew, fmtMoney);
@@ -5316,7 +5552,12 @@ async function renderDetail(view, mt, id) {
           ${(director || creators.length) ? `<div class="hero-credits">
             ${director ? `<div class="hc-item"><span class="hc-lbl">Director</span><span class="hc-val" onclick="navigate('/person/${director.id}')">${esc(director.name)}</span></div>` : ''}
             ${creators.length ? `<div class="hc-item"><span class="hc-lbl">${creators.length > 1 ? 'Creators' : 'Creator'}</span><span class="hc-val">${creators.map(c => `<span onclick="navigate('/person/${c.id}')">${esc(c.name)}</span>`).join(', ')}</span></div>` : ''}
-            ${writers.length ? `<div class="hc-item"><span class="hc-lbl">${writers.length > 1 ? 'Writers' : 'Writer'}</span><span class="hc-val">${writers.slice(0,2).map(w => `<span onclick="navigate('/person/${w.id}')">${esc(w.name)}</span>`).join(', ')}</span></div>` : ''}
+            ${(() => {
+              // v4.9.16 — Dedupe writers by person id (avoid "John Smith, John Smith" when one person has multiple writing jobs)
+              const seen = new Set();
+              const uniqW = writers.filter(w => { if (seen.has(w.id)) return false; seen.add(w.id); return true; });
+              return uniqW.length ? `<div class="hc-item"><span class="hc-lbl">${uniqW.length > 1 ? 'Writers' : 'Writer'}</span><span class="hc-val">${uniqW.slice(0,2).map(w => `<span onclick="navigate('/person/${w.id}')">${esc(w.name)}</span>`).join(', ')}</span></div>` : '';
+            })()}
             ${cast.length ? `<div class="hc-item"><span class="hc-lbl">Starring</span><span class="hc-val">${cast.slice(0,3).map(c => `<span onclick="navigate('/person/${c.id}')">${esc(c.name)}</span>`).join(', ')}</span></div>` : ''}
           </div>` : ''}
           ${nextEp ? `<div class="next-ep-banner">
@@ -5431,7 +5672,8 @@ async function renderDetail(view, mt, id) {
         <div class="accolade-row">${accolades.map(a => `<span class="accolade ${a[2]}"><span class="ac-ic">${a[0]}</span>${a[1]}</span>`).join('')}</div>
       </div>` : ''}
 
-      ${advisory ? `<div class="detail-section">
+      ${renderContentAdvisory(contentAdv, mt)}
+      ${advisory ? `<div class="detail-section" style="display:none">
         <h3 class="detail-section-title">🛡️ Parental Guidance</h3>
         <div class="advisory">
           <div class="adv-badge ${advisory.cls}">${esc(cert)}</div>
@@ -5557,19 +5799,26 @@ async function renderDetail(view, mt, id) {
         <h3 class="detail-section-title">🎥 Director</h3>
         <div class="crew-grid"><div class="crew-item" onclick="navigate('/person/${director.id}')"><div class="crew-name">${esc(director.name)}</div><div class="crew-job">Director</div></div></div>
       </div>` : ''}
-      ${writers.length ? `<div class="detail-section">
-        <h3 class="detail-section-title">✍️ Writers</h3>
-        <div class="crew-grid">${writers.map(w => `<div class="crew-item" onclick="navigate('/person/${w.id}')"><div class="crew-name">${esc(w.name)}</div><div class="crew-job">${esc(w.job)}</div></div>`).join('')}</div>
-      </div>` : ''}
-      ${producers.length ? `<div class="detail-section">
-        <h3 class="detail-section-title">🎬 Producers</h3>
-        <div class="crew-grid">${producers.map(p => `<div class="crew-item" onclick="navigate('/person/${p.id}')"><div class="crew-name">${esc(p.name)}</div><div class="crew-job">${esc(p.job)}</div></div>`).join('')}</div>
-      </div>` : ''}
+      ${(() => {
+        // v4.9.16 — Merge writers so a "Screenplay + Story + Novel" credit shows as one card
+        const mergedWriters = mergeCrewByPerson(writers);
+        return mergedWriters.length ? `<div class="detail-section">
+          <h3 class="detail-section-title">✍️ Writers</h3>
+          <div class="crew-grid">${mergedWriters.map(w => `<div class="crew-item" onclick="navigate('/person/${w.id}')"><div class="crew-name">${esc(w.name)}</div><div class="crew-job">${esc(w.combinedJob)}</div></div>`).join('')}</div>
+        </div>` : '';
+      })()}
+      ${(() => {
+        const mergedProducers = mergeCrewByPerson(producers);
+        return mergedProducers.length ? `<div class="detail-section">
+          <h3 class="detail-section-title">🎬 Producers</h3>
+          <div class="crew-grid">${mergedProducers.map(p => `<div class="crew-item" onclick="navigate('/person/${p.id}')"><div class="crew-name">${esc(p.name)}</div><div class="crew-job">${esc(p.combinedJob)}</div></div>`).join('')}</div>
+        </div>` : '';
+      })()}
       ${sortedDepts.map(dept => {
         const deptIcon = { Directing: '🎥', Writing: '✍️', Production: '🎬', Camera: '📷', Editing: '✂️', Sound: '🎵', Art: '🎨', 'Costume & Make-Up': '👗', 'Visual Effects': '✨', Crew: '🔧', Lighting: '💡' }[dept] || '🎭';
         return `<div class="detail-section">
           <h3 class="detail-section-title">${deptIcon} ${esc(dept)} <small>${crewByDept[dept].length} ${crewByDept[dept].length === 1 ? 'person' : 'people'}</small></h3>
-          <div class="crew-grid">${crewByDept[dept].slice(0, 12).map(c => `<div class="crew-item" onclick="navigate('/person/${c.id}')"><div class="crew-name">${esc(c.name)}</div><div class="crew-job">${esc(c.job || c.department)}</div></div>`).join('')}</div>
+          <div class="crew-grid">${crewByDept[dept].slice(0, 12).map(c => `<div class="crew-item" onclick="navigate('/person/${c.id}')"><div class="crew-name">${esc(c.name)}</div><div class="crew-job">${esc(c.combinedJob || c.job || c.department)}</div></div>`).join('')}</div>
         </div>`;
       }).join('')}
     </div>
@@ -7517,6 +7766,171 @@ function advisoryFor(cert) {
   return null;
 }
 
+/* ---- v4.9.16 — CONTENT ADVISORY PANEL (Sex/Smoking/Drugs/Violence/Profanity) ---- */
+function buildContentAdvisory(det, cert, kws, mt) {
+  // Extract keyword names + genre names into one lowercase text blob for matching.
+  const kwList = ((kws && (kws.keywords || kws.results)) || []).map(k => (k.name || '').toLowerCase());
+  const genreList = ((det && det.genres) || []).map(g => (g.name || '').toLowerCase());
+  const allTags = kwList.concat(genreList).join(' | ');
+  const overview = ((det && det.overview) || '').toLowerCase();
+  const bag = allTags + ' | ' + overview;
+
+  // Certification-based baseline
+  const c = (cert || '').toUpperCase();
+  const isAdult = ['R', 'TV-MA', 'NC-17', '18', '17'].some(x => c.includes(x));
+  const isTeen = ['PG-13', 'TV-14', '12', '13'].some(x => c.includes(x));
+  const isKid = ['G', 'TV-Y', 'TV-G', 'TV-Y7', 'U'].some(x => c.includes(x)) || c === '7';
+
+  // Score each category — 0 = none, 1 = mild, 2 = moderate, 3 = severe
+  const score = { sex: 0, smoking: 0, drugs: 0, violence: 0, profanity: 0 };
+
+  // Baseline from certification
+  if (isAdult) { score.sex = 2; score.violence = 2; score.profanity = 2; score.drugs = 1; }
+  else if (isTeen) { score.sex = 1; score.violence = 1; score.profanity = 1; }
+  else if (isKid) { /* keep at 0 */ }
+
+  // Keyword & genre bumps
+  const has = (patterns) => patterns.some(p => bag.includes(p));
+
+  // Sex & Nudity
+  if (has(['nudity','sex scene','sexual','erotic','strip club','brothel','sensual','love making','intercourse','breast','naked'])) score.sex = Math.max(score.sex, 2);
+  if (has(['pornograph','explicit sex','graphic sex','orgy','bdsm','fetish','sex work','prostitut'])) score.sex = 3;
+  if (has(['romance','kiss','affair','love story']) && score.sex === 0) score.sex = 1;
+
+  // Smoking
+  if (has(['smoking','cigarette','tobacco','smoker','vape','smokes'])) score.smoking = Math.max(score.smoking, 2);
+  if (has(['chain smoker','heavy smoking'])) score.smoking = 3;
+
+  // Drinking & Drugs
+  if (has(['alcohol','drinking','drunk','bar','wine','beer','whiskey','vodka','pub','tavern'])) score.drugs = Math.max(score.drugs, 1);
+  if (has(['drug','cocaine','heroin','marijuana','weed','cannabis','meth','opium','ecstasy','narcotics','overdose','addiction','junkie'])) score.drugs = Math.max(score.drugs, 2);
+  if (has(['drug cartel','drug trafficking','drug dealer','drug lord','crystal meth','crack cocaine','heroin overdose'])) score.drugs = 3;
+
+  // Violence
+  if (genreList.some(g => ['action','war','crime','thriller'].includes(g))) score.violence = Math.max(score.violence, 2);
+  if (genreList.some(g => ['horror'].includes(g))) score.violence = Math.max(score.violence, 3);
+  if (has(['gun','shoot','gunfight','fight','battle','combat','war','soldier','military','assault','murder'])) score.violence = Math.max(score.violence, 2);
+  if (has(['gore','graphic violence','brutal','torture','massacre','slaughter','bloodbath','decapitat','dismember','mutilat','slasher'])) score.violence = 3;
+
+  // Profanity
+  if (isAdult && score.profanity < 2) score.profanity = 2;
+  if (has(['profanity','swearing','strong language','curse','crude language','vulgar'])) score.profanity = Math.max(score.profanity, 2);
+  if (has(['constant profanity','pervasive language','extreme language','f-word'])) score.profanity = 3;
+
+  // Overall
+  const maxScore = Math.max(...Object.values(score));
+  const overallLabel = ['NONE','MILD','MODERATE','SEVERE'][maxScore];
+  const overallCls = ['sev-none','sev-mild','sev-moderate','sev-severe'][maxScore];
+
+  // Advisory type from cert
+  const adv = advisoryFor(cert);
+
+  return {
+    score,
+    overallLabel,
+    overallCls,
+    certLabel: cert || 'NR',
+    advTitle: adv ? adv.title : (mt === 'tv' ? 'TV show' : 'Movie'),
+    genreHint: genreList.length ? genreList[0] : (mt === 'tv' ? 'show' : 'movie'),
+  };
+}
+function renderContentAdvisory(cadv, mt) {
+  const rows = [
+    { key: 'sex', ic: '🔞', title: 'Sex & Nudity', descs: {
+      0: 'No sexual or nude content detected.',
+      1: 'Mild romantic scenes, kissing, or brief intimacy.',
+      2: 'Sex scenes, partial nudity, or strong sexual references.',
+      3: 'Explicit sexual content, full nudity, or pervasive sexual themes.'
+    }},
+    { key: 'smoking', ic: '🚬', title: 'Smoking', descs: {
+      0: 'No smoking detected.',
+      1: 'Occasional smoking or vaping.',
+      2: 'Frequent smoking or tobacco use.',
+      3: 'Heavy or chain smoking throughout.'
+    }},
+    { key: 'drugs', ic: '🍷', title: 'Drinking & Drugs', descs: {
+      0: 'No drinking or drug use detected.',
+      1: 'Social drinking or occasional alcohol.',
+      2: 'Recreational drug use or heavy drinking.',
+      3: 'Hard drug use, cartels, addiction, or overdose themes.'
+    }},
+    { key: 'violence', ic: '⚔️', title: 'Violence', descs: {
+      0: 'No violence detected.',
+      1: 'Mild action or brief fights.',
+      2: 'Frequent action violence, combat, or thriller elements.',
+      3: 'Graphic violence, gore, torture, or brutal scenes.'
+    }},
+    { key: 'profanity', ic: '🤬', title: 'Profanity', descs: {
+      0: 'No strong language detected.',
+      1: 'Mild language occasionally.',
+      2: 'Strong language throughout, including sexual references.',
+      3: 'Pervasive strong language and crude expressions.'
+    }},
+  ];
+  const sevLabels = ['NONE','MILD','MODERATE','SEVERE'];
+  const sevCls = ['sev-none','sev-mild','sev-moderate','sev-severe'];
+
+  return `<div class="cadv" id="cadv-panel">
+    <div class="cadv-head">
+      <div class="cadv-bars">
+        <div class="cadv-bar" style="height:14px;background:#f59e0b"></div>
+        <div class="cadv-bar" style="height:22px;background:var(--good)"></div>
+        <div class="cadv-bar" style="height:18px;background:#f97316"></div>
+        <div class="cadv-bar" style="height:26px;background:var(--bad)"></div>
+        <div class="cadv-bar" style="height:16px;background:#facc15"></div>
+      </div>
+      <div class="cadv-title-wrap">
+        <div class="cadv-title">Content Advisory</div>
+        <div class="cadv-sub">Detected content warnings below</div>
+      </div>
+      <div class="cadv-overall ${cadv.overallCls}">${cadv.overallLabel === 'NONE' ? 'Clean' : cadv.overallLabel.charAt(0) + cadv.overallLabel.slice(1).toLowerCase()}</div>
+      <button class="cadv-toggle" onclick="document.getElementById('cadv-panel').classList.toggle('collapsed')" title="Toggle">▲</button>
+    </div>
+    <div class="cadv-cert-note">This ${mt === 'tv' ? 'show' : 'movie'} contains ${cadv.genreHint} — rated <b style="color:var(--text)">${esc(cadv.certLabel)}</b></div>
+    <div class="cadv-list">
+      ${rows.map(r => {
+        const v = cadv.score[r.key];
+        return `<div class="cadv-row ${sevCls[v]}" onclick="this.classList.toggle('expanded')">
+          <div class="cr-ic">${r.ic}</div>
+          <div class="cr-body">
+            <div class="cr-title">${r.title}</div>
+            <div class="cr-bar"><i></i></div>
+          </div>
+          <div class="cr-badge">${sevLabels[v]}</div>
+          <button class="cr-toggle" onclick="event.stopPropagation();this.closest('.cadv-row').classList.toggle('expanded')">▼</button>
+          <div class="cr-detail">${r.descs[v]}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="cadv-foot">Content advisory is estimated from TMDB keywords, genres, and certifications. May not be 100% accurate.</div>
+  </div>`;
+}
+
+/* ---- v4.9.16 — MERGE crew members with multiple jobs on the same title ---- */
+function mergeCrewByPerson(crewArr) {
+  // Groups by person id → single entry with combined jobs like "Director, Writer, Producer"
+  const map = {};
+  for (const c of crewArr) {
+    if (!c || c.id == null) continue;
+    const id = c.id;
+    if (!map[id]) {
+      map[id] = {
+        ...c,
+        jobs: [c.job || c.department].filter(Boolean),
+        departments: new Set([c.department].filter(Boolean)),
+      };
+    } else {
+      if (c.job && !map[id].jobs.includes(c.job)) map[id].jobs.push(c.job);
+      if (c.department) map[id].departments.add(c.department);
+    }
+  }
+  return Object.values(map).map(p => ({
+    ...p,
+    combinedJob: p.jobs.slice(0, 4).join(', ') + (p.jobs.length > 4 ? ` +${p.jobs.length - 4}` : ''),
+    departments: Array.from(p.departments),
+  }));
+}
+
 /* ---- "Also starring" — lead actor's other titles ---- */
 async function loadAlsoStarring(personId, name, profile, excludeId) {
   const host = document.getElementById('also-starring');
@@ -8856,6 +9270,17 @@ const I18N = {
   ar: { library: '📚 مكتبتي', diary: '📖 المفكرة', history: 'السجل', dashboard: 'لوحة القيادة', home: 'الرئيسية', discover: 'اكتشف', calendar: 'التقويم', mood: 'المزاج', providers: 'المنصات', watchlist: '⭐ قائمتي', watched: '✅ شاهدت', playlists: '📝 قوائمي' },
   es: { library: '📚 Biblioteca', diary: '📖 Diario', history: 'Historial', dashboard: 'Panel', home: 'Inicio', discover: 'Descubrir', calendar: 'Calendario', mood: 'Humor', providers: 'Proveedores', watchlist: '⭐ Por ver', watched: '✅ Vistos', playlists: '📝 Listas' },
   fr: { library: '📚 Bibliothèque', diary: '📖 Journal', history: 'Historique', dashboard: 'Tableau de bord', home: 'Accueil', discover: 'Découvrir', calendar: 'Calendrier', mood: 'Humeur', providers: 'Plateformes', watchlist: '⭐ À voir', watched: '✅ Vus', playlists: '📝 Listes' },
+  de: { library: '📚 Bibliothek', diary: '📖 Tagebuch', history: 'Verlauf', dashboard: 'Übersicht', home: 'Startseite', discover: 'Entdecken', calendar: 'Kalender', mood: 'Stimmung', providers: 'Anbieter', watchlist: '⭐ Merkliste', watched: '✅ Gesehen', playlists: '📝 Listen' },
+  it: { library: '📚 Libreria', diary: '📖 Diario', history: 'Cronologia', dashboard: 'Pannello', home: 'Home', discover: 'Scopri', calendar: 'Calendario', mood: 'Umore', providers: 'Provider', watchlist: '⭐ Da vedere', watched: '✅ Visti', playlists: '📝 Liste' },
+  pt: { library: '📚 Biblioteca', diary: '📖 Diário', history: 'Histórico', dashboard: 'Painel', home: 'Início', discover: 'Descobrir', calendar: 'Calendário', mood: 'Humor', providers: 'Serviços', watchlist: '⭐ Ver depois', watched: '✅ Vistos', playlists: '📝 Listas' },
+  tr: { library: '📚 Kütüphane', diary: '📖 Günlük', history: 'Geçmiş', dashboard: 'Pano', home: 'Ana Sayfa', discover: 'Keşfet', calendar: 'Takvim', mood: 'Ruh Hali', providers: 'Sağlayıcılar', watchlist: '⭐ İzleme Listesi', watched: '✅ İzlendi', playlists: '📝 Listeler' },
+  ru: { library: '📚 Библиотека', diary: '📖 Дневник', history: 'История', dashboard: 'Панель', home: 'Главная', discover: 'Обзор', calendar: 'Календарь', mood: 'Настроение', providers: 'Сервисы', watchlist: '⭐ Смотреть', watched: '✅ Просмотрено', playlists: '📝 Плейлисты' },
+  ja: { library: '📚 ライブラリ', diary: '📖 日記', history: '履歴', dashboard: 'ダッシュボード', home: 'ホーム', discover: '探す', calendar: 'カレンダー', mood: '気分', providers: 'プロバイダー', watchlist: '⭐ 見たい', watched: '✅ 視聴済', playlists: '📝 リスト' },
+  ko: { library: '📚 라이브러리', diary: '📖 일기', history: '기록', dashboard: '대시보드', home: '홈', discover: '탐색', calendar: '달력', mood: '기분', providers: '제공자', watchlist: '⭐ 보고싶은', watched: '✅ 시청함', playlists: '📝 재생목록' },
+  zh: { library: '📚 我的库', diary: '📖 日记', history: '历史', dashboard: '控制台', home: '主页', discover: '发现', calendar: '日历', mood: '心情', providers: '平台', watchlist: '⭐ 待看', watched: '✅ 已看', playlists: '📝 列表' },
+  hi: { library: '📚 लाइब्रेरी', diary: '📖 डायरी', history: 'इतिहास', dashboard: 'डैशबोर्ड', home: 'होम', discover: 'खोजें', calendar: 'कैलेंडर', mood: 'मूड', providers: 'प्रदाता', watchlist: '⭐ देखना', watched: '✅ देखा', playlists: '📝 सूचियां' },
+  nl: { library: '📚 Bibliotheek', diary: '📖 Dagboek', history: 'Geschiedenis', dashboard: 'Overzicht', home: 'Home', discover: 'Ontdek', calendar: 'Agenda', mood: 'Stemming', providers: 'Providers', watchlist: '⭐ Kijklijst', watched: '✅ Bekeken', playlists: '📝 Lijsten' },
+  pl: { library: '📚 Biblioteka', diary: '📖 Dziennik', history: 'Historia', dashboard: 'Panel', home: 'Start', discover: 'Odkryj', calendar: 'Kalendarz', mood: 'Nastrój', providers: 'Dostawcy', watchlist: '⭐ Do obejrzenia', watched: '✅ Obejrzane', playlists: '📝 Playlisty' },
 };
 function currentLang() { return LS.get('lang', 'en'); }
 function t(key) { return (I18N[currentLang()] && I18N[currentLang()][key]) || (I18N.en[key] || key); }
@@ -10145,12 +10570,21 @@ function renderSettings(view) {
   const curTheme = document.body.dataset.theme || 'dark';
   const accents = [
     ['#00f0ff','#ff2bd6'],['#c026d3','#7c3aed'],['#facc15','#f97316'],
-    ['#34d399','#06b6d4'],['#fb7185','#f43f5e'],['#ff6b35','#ffb347']
+    ['#34d399','#06b6d4'],['#fb7185','#f43f5e'],['#ff6b35','#ffb347'],
+    ['#a855f7','#ec4899'],['#22d3ee','#8b5cf6'],['#ef4444','#f59e0b']
   ];
   const curAccent = LS.get('accent', null);
-  const langs = [['en','🇬🇧 English'],['ar','🇸🇦 العربية'],['es','🇪🇸 Español'],['fr','🇫🇷 Français']];
+  const langs = [
+    ['en','🇬🇧 English'],['ar','🇸🇦 العربية'],['es','🇪🇸 Español'],['fr','🇫🇷 Français'],
+    ['de','🇩🇪 Deutsch'],['it','🇮🇹 Italiano'],['pt','🇵🇹 Português'],['tr','🇹🇷 Türkçe'],
+    ['ru','🇷🇺 Русский'],['ja','🇯🇵 日本語'],['ko','🇰🇷 한국어'],['zh','🇨🇳 中文'],
+    ['hi','🇮🇳 हिन्दी'],['nl','🇳🇱 Nederlands'],['pl','🇵🇱 Polski']
+  ];
   const curLang = currentLang();
+  const curFont = currentFont();
   const stg = key => LS.get(key, false);
+  const adultManual = LS.get('adultManual', null);
+  const favSrv = (typeof getFavoriteServer === 'function' && getFavoriteServer()) || 'vidlink';
   view.innerHTML = `
     <div class="settings-hero"><h1 class="display">⚙️ Settings</h1><p>Personalize every corner of CineGlow. Changes save automatically.</p></div>
     <div class="settings-grid">
@@ -10161,10 +10595,19 @@ function renderSettings(view) {
           <div class="sr-info"><div class="sr-t">Theme</div><div class="sr-d">Choose the color scheme of the whole app.</div></div>
         </div>
         <div class="settings-theme-grid">${themes.map(([k,l]) => `<button class="settings-theme-chip ${curTheme===k?'active':''}" onclick="setTheme('${k}');renderSettings(document.getElementById('view'))">${l}</button>`).join('')}</div>
+
         <div class="settings-row" style="margin-top:14px">
           <div class="sr-info"><div class="sr-t">Accent color</div><div class="sr-d">Highlight color for buttons and hovers.</div></div>
         </div>
         <div class="settings-accent-grid">${accents.map(([a,a2]) => `<div class="settings-accent-swatch ${curAccent && curAccent.a===a?'active':''}" style="background:linear-gradient(135deg,${a},${a2})" data-a="${a}" data-a2="${a2}" onclick="setAccent(this);renderSettings(document.getElementById('view'))"></div>`).join('')}</div>
+
+        <div class="custom-accent-row">
+          <label>🎨 Any color:</label>
+          <input type="color" id="cap-color" value="${curAccent ? curAccent.a : '#00f0ff'}" oninput="document.getElementById('cap-preview').style.color=this.value">
+          <div class="cap-preview" id="cap-preview" style="color:${curAccent ? curAccent.a : '#00f0ff'}">Live preview 🎬</div>
+          <button class="cap-btn" onclick="setCustomAccent(document.getElementById('cap-color').value);renderSettings(document.getElementById('view'))">Apply</button>
+        </div>
+
         <div class="settings-row" style="margin-top:14px">
           <div class="sr-info"><div class="sr-t">🌗 Auto theme by time</div><div class="sr-d">Automatically switches theme based on the hour of the day.</div></div>
           <div class="toggle ${LS.get('autoTheme',false)?'on':''}" id="auto-theme-tg" onclick="toggleAutoTheme();this.classList.toggle('on',LS.get('autoTheme',false))"></div>
@@ -10172,9 +10615,15 @@ function renderSettings(view) {
       </div>
 
       <div class="settings-section">
+        <h3>🔤 Font</h3>
+        <div class="settings-row" style="border:none;padding:0"><div class="sr-info"><div class="sr-d">Choose the typeface for the entire app. Arabic fonts (Cairo, Tajawal) render Arabic text beautifully.</div></div></div>
+        <div class="font-picker-grid">${FONT_OPTIONS.map(f => `<button class="font-chip ${curFont===f.key?'active':''}" style="font-family:${f.display}" onclick="setFont('${f.key}')"><div class="fc-name">${f.name}</div><div class="fc-sample">Aa Bb 123</div></button>`).join('')}</div>
+      </div>
+
+      <div class="settings-section">
         <h3>🌍 Language</h3>
         <div class="settings-row" style="border:none;padding:0"><div class="sr-info"><div class="sr-d">Interface language. Arabic switches the layout to right-to-left automatically.</div></div></div>
-        <div class="settings-lang-grid" style="margin-top:8px">${langs.map(([k,l]) => `<button class="settings-theme-chip ${curLang===k?'active':''}" onclick="setLang('${k}');renderSettings(document.getElementById('view'))">${l}</button>`).join('')}</div>
+        <div class="settings-lang-grid" style="margin-top:8px;grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">${langs.map(([k,l]) => `<button class="settings-theme-chip ${curLang===k?'active':''}" onclick="setLang('${k}');renderSettings(document.getElementById('view'))">${l}</button>`).join('')}</div>
       </div>
 
       <div class="settings-section">
@@ -10193,14 +10642,26 @@ function renderSettings(view) {
 
       <div class="settings-section">
         <h3>🎬 Playback</h3>
+        <div class="settings-row"><div class="sr-info"><div class="sr-t">⚡ Default Server</div><div class="sr-d">Your preferred streaming source. Every new title opens here first.</div></div>
+          <select class="f-select" style="min-height:44px;min-width:180px" onchange="setFavoriteServer(this.value);renderSettings(document.getElementById('view'))">
+            ${SERVER_ORDER.map(s => `<option value="${s}" ${favSrv===s?'selected':''}>${SERVER_LABELS[s]}</option>`).join('')}
+          </select></div>
         <div class="settings-row"><div class="sr-info"><div class="sr-t">⏰ Sleep Timer</div><div class="sr-d">Auto-pause playback after a set duration.</div></div>
           <button class="btn btn-ghost btn-sm" onclick="openSleepTimer()">Set</button></div>
         <div class="settings-row"><div class="sr-info"><div class="sr-t">🎧 Ambient Sounds</div><div class="sr-d">Background sounds while browsing.</div></div>
           <button class="btn btn-ghost btn-sm" onclick="openAmbient()">Choose</button></div>
         <div class="settings-row"><div class="sr-info"><div class="sr-t">📝 Upload Subtitles</div><div class="sr-d">Add your own SRT/VTT subtitle files.</div></div>
           <button class="btn btn-ghost btn-sm" onclick="openSubtitleUpload()">Upload</button></div>
-        <div class="settings-row"><div class="sr-info"><div class="sr-t">⚡ Default Server</div><div class="sr-d">Your preferred streaming source when opening any title.</div></div>
-          <span style="font-weight:800;color:var(--accent);font-size:13px">${getFavoriteServer() ? ({vidlink:'⚡ VidLink',videasy:'🎬 Videasy',cinemaos:'🏛️ CinemaOS'}[getFavoriteServer()]) : 'Not set'}</span></div>
+      </div>
+
+      <div class="settings-section">
+        <h3>🔞 Adult Content</h3>
+        <div class="settings-row"><div class="sr-info"><div class="sr-t">18+ Content</div><div class="sr-d">${adultManual === true ? '<span style="color:var(--good);font-weight:800">✅ Force enabled</span> — you see everything regardless of age.' : adultManual === false ? '<span style="color:var(--bad);font-weight:800">🔒 Force hidden</span> — all 18+ content is blocked.' : isAdultAllowed() ? '<span style="color:var(--good);font-weight:800">✅ Age-unlocked</span> (you are 18+)' : '🔒 Age-locked (under 18)'}</div></div></div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn ${adultManual === null?'btn-primary':'btn-secondary'}" style="flex:1;min-height:42px" onclick="setAdultManual(null)">👶 Age-based</button>
+          <button class="btn ${adultManual === false?'btn-primary':'btn-secondary'}" style="flex:1;min-height:42px" onclick="setAdultManual(false)">🔒 Always hide</button>
+          <button class="btn ${adultManual === true?'btn-primary':'btn-secondary'}" style="flex:1;min-height:42px" onclick="setAdultManual(true)">🔓 Always show</button>
+        </div>
       </div>
 
       <div class="settings-section">
@@ -10223,7 +10684,7 @@ function renderSettings(view) {
       </div>
 
       <div class="settings-section" style="grid-column:1/-1;text-align:center;background:transparent;border:none">
-        <p style="color:var(--text-muted);font-size:12px">CineGlow v4.8 · Premium home theater · Built as a single file 🎬</p>
+        <p style="color:var(--text-muted);font-size:12px">CineGlow v4.9.16 · Premium home theater · Built as a single file 🎬</p>
       </div>
 
     </div>`;
@@ -10501,7 +10962,7 @@ function _maybeShowBirthdayBanner() {
   window.tmdb = async function(path, params = {}) {
     const p = { ...params };
     // For search/discover endpoints, respect the user's age
-    if (!isAdultAllowed() && (path.startsWith('/search/') || path.startsWith('/discover/') || path.startsWith('/trending/'))) {
+    if (!isAdultContentAllowed() && (path.startsWith('/search/') || path.startsWith('/discover/') || path.startsWith('/trending/'))) {
       p.include_adult = false;
     }
     return _orig.call(this, path, p);
@@ -10510,7 +10971,7 @@ function _maybeShowBirthdayBanner() {
 /* Also filter API responses at read-time: hide items where item.adult === true */
 function _filterAdultInPlace(arr) {
   if (!arr || !Array.isArray(arr)) return arr;
-  if (isAdultAllowed()) return arr;
+  if (isAdultContentAllowed()) return arr;
   return arr.filter(x => !x || !x.adult);
 }
 /* Patch the card() function to show a blocked overlay for adult content on individual detail pages */
@@ -10518,7 +10979,7 @@ function _filterAdultInPlace(arr) {
   const _origCard = window.card;
   if (typeof _origCard !== 'function') return;
   window.card = function(item, delay = 0, rank = 0) {
-    if (item && item.adult && !isAdultAllowed()) {
+    if (item && item.adult && !isAdultContentAllowed()) {
       const mt = typeOf(item);
       return `<div style="animation:fadeUp .4s ${delay}ms both">
         <div class="poster" style="cursor:default;position:relative">
@@ -10540,7 +11001,7 @@ function _filterAdultInPlace(arr) {
   const _orig = window.wideCard;
   if (typeof _orig !== 'function') return;
   window.wideCard = function(item, delay = 0) {
-    if (item && item.adult && !isAdultAllowed()) {
+    if (item && item.adult && !isAdultContentAllowed()) {
       return `<div class="wcard" style="animation:fadeUp .4s ${delay}ms both;position:relative;cursor:default">
         <div class="wcard-art" style="background:var(--surface);position:relative">
           <div class="adult-block" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px;background:rgba(3,4,8,.9)">
@@ -10559,7 +11020,7 @@ function _filterAdultInPlace(arr) {
   const _origNav = window.navigate;
   if (typeof _origNav !== 'function') return;
   window.navigate = async function(path) {
-    if (!isAdultAllowed() && typeof path === 'string') {
+    if (!isAdultContentAllowed() && typeof path === 'string') {
       const m = path.match(/^\/(movie|tv)\/(\d+)/);
       if (m) {
         try {
@@ -10575,7 +11036,7 @@ function _filterAdultInPlace(arr) {
   };
 })();
 
-/* ---------- Add "Edit birth date" row to Settings page ---------- */
+/* ---------- Add "Edit birth date" row (birth date row lives at TOP of Settings page) ---------- */
 (function patchSettingsForAge() {
   const _orig = window.renderSettings;
   if (typeof _orig !== 'function') return;
@@ -10586,21 +11047,14 @@ function _filterAdultInPlace(arr) {
       if (!grid || view.querySelector('#settings-age')) return;
       const b = getBirthDate();
       const age = getUserAge();
-      const d18 = _daysUntil18();
       const html = `<div class="settings-section" id="settings-age">
-        <h3>🎂 Age &amp; Content Filter</h3>
+        <h3>🎂 Your Age</h3>
         <div class="settings-row">
           <div class="sr-info">
-            <div class="sr-t">Your birth date</div>
-            <div class="sr-d">${b ? `${b.d}/${b.m}/${b.y} — <b>${age} years old</b>` : 'Not set yet'}</div>
+            <div class="sr-t">Birth date</div>
+            <div class="sr-d">${b ? `${b.d}/${b.m}/${b.y} — <b>${age} years old</b>` : 'Not set yet — used to determine 18+ content access by default.'}</div>
           </div>
           <button class="btn btn-ghost btn-sm" onclick="editBirthDate()">${b ? 'Change' : 'Set'}</button>
-        </div>
-        <div class="settings-row">
-          <div class="sr-info">
-            <div class="sr-t">18+ content</div>
-            <div class="sr-d">${isAdultAllowed() ? '<span style="color:var(--good);font-weight:800">✅ Unlocked</span> — you see everything.' : d18 !== null && d18 > 0 ? `🔒 Hidden. <b>Auto-unlocks in ${d18} day${d18===1?'':'s'}</b> when you turn 18.` : '🔒 Hidden. Set your birth date first.'}</div>
-          </div>
         </div>
       </div>`;
       grid.insertAdjacentHTML('afterbegin', html);
@@ -10767,5 +11221,5 @@ window.addEventListener('beforeunload', () => { try { stopAllPlayback(); } catch
 if (!window.requestIdleCallback) window.requestIdleCallback = (cb, o) => setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 50 }), o?.timeout || 1);
 </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a13dc3b4dee2e284',t:'MTc4MjgyODczMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a15cf3caba341305',t:'MTc4MzE1NTc1OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a13dc3b4dee2e284',t:'MTc4MjgyODczMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a15dc196b8c7e163',t:'MTc4MzE2NDE4OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
