@@ -6,6 +6,11 @@
 <title>CineGlow — Premium Home Theater</title>
 <meta name="description" content="CineGlow — premium single-file home theater with 30+ features." />
 <meta name="theme-color" content="#00f0ff" />
+<!-- v4.9.9 — Permissive CSP for embedded video players (VidLink/Videasy/CinemaOS/etc.)
+     These players use inline scripts internally. Our own code is CSP-safe (no eval,
+     no new Function, no string setTimeout). This meta only affects the parent page
+     and gives the iframed players enough freedom to run their video pipelines. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https: http:; font-src 'self' data: https:; media-src 'self' blob: https: http:; connect-src 'self' https: wss: blob:; frame-src 'self' https: http:; child-src 'self' https: http: blob:; worker-src 'self' blob:; manifest-src 'self' data:;" />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2300f0ff'/><stop offset='1' stop-color='%23ff2bd6'/></linearGradient></defs><circle cx='32' cy='32' r='30' fill='none' stroke='url(%23g)' stroke-width='3'/><path d='M26 22 L44 32 L26 42 Z' fill='url(%23g)'/></svg>" />
 <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2300f0ff'/><stop offset='1' stop-color='%23ff2bd6'/></linearGradient></defs><circle cx='32' cy='32' r='30' fill='none' stroke='url(%23g)' stroke-width='3'/><path d='M26 22 L44 32 L26 42 Z' fill='url(%23g)'/></svg>" />
 <link rel="manifest" href='data:application/manifest+json;utf8,{"name":"CineGlow","short_name":"CineGlow","start_url":".","display":"standalone","background_color":"%2305060b","theme_color":"%2300f0ff","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 512 512%27><rect width=%27512%27 height=%27512%27 fill=%27%2305060b%27/><circle cx=%27256%27 cy=%27256%27 r=%27220%27 fill=%27none%27 stroke=%27%2300f0ff%27 stroke-width=%2724%27/><path d=%27M210 170 L360 256 L210 342 Z%27 fill=%27%23ff2bd6%27/></svg>","sizes":"512x512","type":"image/svg+xml","purpose":"any"}]}' />
@@ -1131,9 +1136,10 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance
 
 /* --- MOBILE: bigger server bar so buttons are tappable, less ad-like layout --- */
 @media (max-width: 768px) {
-  .server-bar { padding: 12px 12px; gap: 8px; border-radius: 14px; }
+  .server-bar { padding: 12px 12px; gap: 6px; border-radius: 14px; }
   .server-bar .server-lbl { width: 100%; font-size: 10px; margin-bottom: 2px; }
-  .server-bar .server-btn { flex: 1 1 calc(33% - 8px); min-width: 0; padding: 12px 8px; font-size: 13px; font-weight: 700; min-height: 44px; border-radius: 11px; text-align: center; }
+  .server-bar .server-btn { flex: 1 1 calc(25% - 6px); min-width: 0; padding: 10px 6px; font-size: 12px; font-weight: 700; min-height: 44px; border-radius: 10px; text-align: center; gap: 4px; }
+  .server-bar .server-btn .srv-label { font-size: 11.5px; }
   .server-bar > div[style*="flex:1"] { display: none; }
   .server-bar select.f-select { width: 100%; min-height: 44px; font-size: 14px; padding: 10px 12px; }
   .server-bar .btn { min-height: 44px; font-size: 12.5px; }
@@ -5379,9 +5385,7 @@ async function renderDetail(view, mt, id) {
       <div class="player-container" id="player-section">
         <div class="server-bar">
           <span class="server-lbl">Stream via</span>
-          ${renderServerButton('vidlink','⚡ VidLink', mt, id)}
-          ${renderServerButton('videasy','🎬 Videasy', mt, id)}
-          ${renderServerButton('cinemaos','🏛️ CinemaOS', mt, id)}
+          ${SERVER_ORDER.map(srv => renderServerButton(srv, SERVER_LABELS[srv], mt, id)).join('')}
           <div style="flex:1"></div>
           <select class="f-select" id="mirror-sel" onchange="changeMirror('${mt}',${id})"></select>
         </div>
@@ -5859,7 +5863,27 @@ function playEpisode(showId, season, episode) {
 }
 function switchTab(btn, n) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn)); document.querySelectorAll('.tab-content').forEach(p => p.classList.toggle('hidden', p.id !== 'tab-' + n)); }
 
-const MIRRORS = { vidlink: [{ label: 'VidLink', t: 'vl' }], videasy: [{ label: 'Videasy', t: 'vs' }, { label: 'AutoEmbed', t: 'ae' }, { label: 'SuperEmbed', t: 'se' }, { label: 'Videasy XYZ', t: 'vxyz' }], cinemaos: [{ label: 'CinemaOS Live', t: 'co' }, { label: 'CinemaOS Tech', t: 'cotech' }, { label: 'Rive .org', t: 'riveorg' }, { label: 'Rive .xyz', t: 'rivexyz' }] };
+/* v4.9.14 — Only DNS-verified LIVE domains. Dead servers replaced with real ones:
+   - Hexa (api.hexa.watch) — DEAD, removed
+   - Rive (rivestream.org/.net) — DEAD, removed
+   - XPrime (xprime.tv) — DEAD, removed
+   - MoviesAPI (moviesapi.club) — DEAD, removed
+   - Videasy XYZ (player.videasy.xyz) — DEAD, removed
+   New verified-live replacements: FlixHQ, 2Embed, SuperEmbed, VidSrc.pm, VidSrc.wtf, P-Stream (real org).
+   All URLs use TMDB IDs. */
+const MIRRORS = {
+  vidlink:   [{ label: 'VidLink',    t: 'vl' }],                                                                     // ✔ postMessage, low ads
+  peach:     [{ label: 'Peachify (AR sub)',   t: 'peach' }],                                                         // ✔ postMessage, Arabic subs
+  vidfast:   [{ label: 'VidFast.pro', t: 'vf' }],                                                                    // ★ FMHY: no ads with option
+  vidbinge:  [{ label: 'VidBinge (moviesapi.to)', t: 'mvto' }],                                                      // ✅ confirmed working by user
+  twoembed:  [{ label: '2Embed .cc',  t: 'te' }, { label: '2Embed .stream', t: 'tes' }],                             // ✅ live
+  smashy:    [{ label: 'SmashyStream', t: 'smash' }],                                                                // ✅ live
+  vidsrc:    [{ label: 'VidSrc.mov', t: 'vsm' }, { label: 'VidSrc.link', t: 'vsl' }, { label: 'VidSrc.to', t: 'vst' }, { label: 'VidSrc.cc', t: 'vsc' }, { label: 'VidSrc.pm', t: 'vspm' }, { label: 'VidSrc.wtf', t: 'vswtf' }],
+  core:      [{ label: 'MultiEmbed', t: 'coreme' }, { label: 'SuperEmbed', t: 'sestream' }],                         // ✅ both live
+  zxc:       [{ label: 'ZxcStream .xyz', t: 'zxc' }, { label: 'ZxcStream .icu', t: 'zxci' }],
+  videasy:   [{ label: 'Videasy (AR dub)', t: 'vs' }, { label: 'SuperEmbed', t: 'se' }],                             // Videasy XYZ dead, AutoEmbed dead
+  cinemaos:  [{ label: 'CinemaOS Live', t: 'co' }, { label: 'CinemaOS Tech', t: 'cotech' }]
+};
 let curSrv = 'vidlink', curMir = 0, curS = 1, curE = 1;
 function switchServer(b, mt, id) {
   document.querySelectorAll('.server-btn').forEach(x => x.classList.toggle('active', x === b));
@@ -5893,31 +5917,108 @@ function changeMirror(mt, id) { curMir = parseInt(document.getElementById('mirro
 function buildUrl(mt, id, s, e) {
   const m = MIRRORS[curSrv][curMir];
   const acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim().replace('#', '');
-  if (mt === 'movie') {
-    switch (m.t) {
-      case 'vl': return `https://vidlink.pro/movie/${id}?primaryColor=${acc}&iconColor=${acc}&autoplay=true`;
-      case 'vs': return `https://player.videasy.net/movie/${id}`;
-      case 'ae': return `https://player.autoembed.cc/embed/movie/${id}`;
-      case 'se': return `https://multiembed.mov/?video_id=${id}&tmdb=1`;
-      case 'vxyz': return `https://player.videasy.xyz/movie/${id}`;
-      case 'co': return `https://cinemaos.live/player/${id}?theme=${acc}`;
-      case 'cotech': return `https://cinemaos.tech/player/${id}?theme=${acc}`;
-      case 'riveorg': return `https://rivestream.org/movie/${id}`;
-      case 'rivexyz': return `https://rivestream.xyz/movie/${id}`;
-    }
-  } else {
-    const s_ = s || 1, e_ = e || 1;
-    switch (m.t) {
-      case 'vl': return `https://vidlink.pro/tv/${id}/${s_}/${e_}?primaryColor=${acc}&iconColor=${acc}&autoplay=true`;
-      case 'vs': return `https://player.videasy.net/tv/${id}/${s_}/${e_}`;
-      case 'ae': return `https://player.autoembed.cc/embed/tv/${id}/${s_}/${e_}`;
-      case 'se': return `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s_}&e=${e_}`;
-      case 'vxyz': return `https://player.videasy.xyz/tv/${id}/${s_}/${e_}`;
-      case 'co': return `https://cinemaos.live/player/${id}/${s_}/${e_}?theme=${acc}`;
-      case 'cotech': return `https://cinemaos.tech/player/${id}/${s_}/${e_}?theme=${acc}`;
-      case 'riveorg': return `https://rivestream.org/tv/${id}/${s_}/${e_}`;
-      case 'rivexyz': return `https://rivestream.xyz/tv/${id}/${s_}/${e_}`;
-    }
+  const s_ = s || 1, e_ = e || 1;
+  const isMovie = mt === 'movie';
+  switch (m.t) {
+    // ⚡ VidLink — DNS ✓ — supports color theming + progress postMessage
+    case 'vl':
+      return isMovie
+        ? `https://vidlink.pro/movie/${id}?primaryColor=${acc}&iconColor=${acc}&autoplay=true`
+        : `https://vidlink.pro/tv/${id}/${s_}/${e_}?primaryColor=${acc}&iconColor=${acc}&autoplay=true`;
+    // 🍑 Peachify — DNS ✓ — Arabic subs + postMessage
+    case 'peach':
+      return isMovie
+        ? `https://peachify.top/embed/movie/${id}?accent=${acc}&sub=Arabic&autoPlay=true`
+        : `https://peachify.top/embed/tv/${id}/${s_}/${e_}?accent=${acc}&sub=Arabic&autoPlay=true`;
+    // 💨 VidFast — DNS ✓
+    case 'vf':
+      return isMovie
+        ? `https://vidfast.pro/movie/${id}?theme=${acc}&autoPlay=true`
+        : `https://vidfast.pro/tv/${id}/${s_}/${e_}?theme=${acc}&autoPlay=true&nextButton=true&autoNext=true`;
+    // 🍿 VidBinge (moviesapi.to) — DNS ✓ — confirmed working by user
+    case 'mvto':
+      return isMovie
+        ? `https://moviesapi.to/movie/${id}`
+        : `https://moviesapi.to/tv/${id}/${s_}/${e_}`;
+    // 🟦 2Embed — DNS ✓ (both mirrors)
+    case 'te':
+      return isMovie
+        ? `https://www.2embed.cc/embed/${id}`
+        : `https://www.2embed.cc/embedtv/${id}&s=${s_}&e=${e_}`;
+    case 'tes':
+      return isMovie
+        ? `https://www.2embed.stream/embed/movie/${id}`
+        : `https://www.2embed.stream/embed/tv/${id}/${s_}/${e_}`;
+    // ⭐ SmashyStream — DNS ✓
+    case 'smash':
+      return isMovie
+        ? `https://embed.smashystream.com/playere.php?tmdb=${id}`
+        : `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${s_}&episode=${e_}`;
+    // 📼 VidSrc — DNS ✓ (all 6 mirrors)
+    case 'vsm':
+      return isMovie
+        ? `https://vidsrc.mov/embed/movie/${id}`
+        : `https://vidsrc.mov/embed/tv/${id}/${s_}/${e_}`;
+    case 'vsl':
+      return isMovie
+        ? `https://vidsrc.link/embed/movie/${id}`
+        : `https://vidsrc.link/embed/tv/${id}/${s_}/${e_}`;
+    case 'vst':
+      return isMovie
+        ? `https://vidsrc.to/embed/movie/${id}`
+        : `https://vidsrc.to/embed/tv/${id}/${s_}/${e_}`;
+    case 'vsc':
+      return isMovie
+        ? `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=false`
+        : `https://vidsrc.cc/v2/embed/tv/${id}/${s_}/${e_}?autoPlay=false`;
+    case 'vspm':
+      return isMovie
+        ? `https://vidsrc.pm/embed/movie/${id}`
+        : `https://vidsrc.pm/embed/tv/${id}/${s_}/${e_}`;
+    case 'vswtf':
+      return isMovie
+        ? `https://vidsrc.wtf/embed/movie/${id}`
+        : `https://vidsrc.wtf/embed/tv/${id}/${s_}/${e_}`;
+    // ⚛️ Core — MultiEmbed + SuperEmbed — DNS ✓
+    case 'coreme':
+      return isMovie
+        ? `https://multiembed.mov/?video_id=${id}&tmdb=1`
+        : `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s_}&e=${e_}`;
+    case 'sestream':
+      return isMovie
+        ? `https://superembed.stream/?video_id=${id}&tmdb=1`
+        : `https://superembed.stream/?video_id=${id}&tmdb=1&s=${s_}&e=${e_}`;
+    // 🌀 ZxcStream — DNS ✓ (both mirrors)
+    case 'zxc':
+      return isMovie
+        ? `https://zxcstream.xyz/player/movie/${id}?color=${acc}&autoplay=true`
+        : `https://zxcstream.xyz/player/tv/${id}/${s_}/${e_}?color=${acc}&autoplay=true`;
+    case 'zxci':
+      return isMovie
+        ? `https://zxcstream.icu/player/movie/${id}?color=${acc}&autoplay=true`
+        : `https://zxcstream.icu/player/tv/${id}/${s_}/${e_}?color=${acc}&autoplay=true`;
+    // 🎬 Videasy — DNS ✓ (main only; XYZ and AutoEmbed dead)
+    case 'vs':
+      return isMovie
+        ? `https://player.videasy.net/movie/${id}?dubLang=ar&subtitle=arabic&color=${acc}`
+        : `https://player.videasy.net/tv/${id}/${s_}/${e_}?dubLang=ar&subtitle=arabic&color=${acc}&nextEpisode=true&autoplayNextEpisode=true`;
+    case 'se':
+      return isMovie
+        ? `https://multiembed.mov/?video_id=${id}&tmdb=1`
+        : `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s_}&e=${e_}`;
+    // 🏛️ CinemaOS — DNS ✓ (both mirrors)
+    case 'co':
+      return isMovie
+        ? `https://cinemaos.live/player/${id}?theme=${acc}`
+        : `https://cinemaos.live/player/${id}/${s_}/${e_}?theme=${acc}`;
+    case 'cotech':
+      return isMovie
+        ? `https://cinemaos.tech/player/${id}?theme=${acc}`
+        : `https://cinemaos.tech/player/${id}/${s_}/${e_}?theme=${acc}`;
+    default:
+      return isMovie
+        ? `https://vidlink.pro/movie/${id}?autoplay=true`
+        : `https://vidlink.pro/tv/${id}/${s_}/${e_}?autoplay=true`;
   }
 }
 function initPlayer(mt, id) { fillMirrors(); loadPlayer(mt, id); }
@@ -8328,8 +8429,23 @@ function injectAdShieldNotice() {
 /* =================================================================
    v4.4 — SERVER HEALTH + AUTO-FALLBACK
    ================================================================= */
-const SERVER_ORDER = ['vidlink', 'videasy', 'cinemaos'];
-const SERVER_LABELS = { vidlink: '⚡ VidLink', videasy: '🎬 Videasy', cinemaos: '🏛️ CinemaOS' };
+/* v4.9.10 — all 8 servers */
+/* v4.9.11 — ad-friendly ordering: no-ads / low-ads servers first */
+/* v4.9.15 — Cineby / P-Stream / FlixHQ removed per user request */
+const SERVER_ORDER = ['vidlink', 'peach', 'vidfast', 'vidbinge', 'twoembed', 'smashy', 'vidsrc', 'core', 'zxc', 'videasy', 'cinemaos'];
+const SERVER_LABELS = {
+  vidlink:   '⚡ VidLink',
+  peach:     '🍑 Peach',
+  vidfast:   '💨 VidFast',
+  vidbinge:  '🍿 VidBinge',
+  twoembed:  '🟦 2Embed',
+  smashy:    '⭐ Smashy',
+  vidsrc:    '📼 VidSrc',
+  core:      '⚛️ Core',
+  zxc:       '🌀 ZxcStream',
+  videasy:   '🎬 Videasy',
+  cinemaos:  '🏛️ CinemaOS'
+};
 
 function getHealthData() { return LS.get('serverHealth', {}); }
 function getServerHealth(srv) {
@@ -10651,5 +10767,5 @@ window.addEventListener('beforeunload', () => { try { stopAllPlayback(); } catch
 if (!window.requestIdleCallback) window.requestIdleCallback = (cb, o) => setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 50 }), o?.timeout || 1);
 </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a13dc3b4dee2e284',t:'MTc4MjgyODczMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a13dc3b4dee2e284',t:'MTc4MjgyODczMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a15cf3caba341305',t:'MTc4MzE1NTc1OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
